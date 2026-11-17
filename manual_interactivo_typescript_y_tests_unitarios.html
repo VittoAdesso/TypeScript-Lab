@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual Pro: TypeScript &amp; Tests Unitarios (Vitest)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* Estilos personalizados para scrollbars, resaltado de sintaxis y transiciones */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.35);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.55);
+    }
+
+    /* Resaltado de sintaxis tipo IDE */
+    .tok-comment { color: #64748b; font-style: italic; }
+    .tok-string { color: #34d399; }
+    .tok-keyword { color: #c084fc; font-weight: 500; }
+    .tok-type { color: #38bdf8; }
+    .tok-number { color: #fbbf24; }
+
+    /* Animación suave de entrada de sección */
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-section {
+      animation: fadeSlideIn 0.25s ease-out forwards;
+    }
+
+    /* Resaltado temporal al buscar */
+    .search-pulse {
+      outline: 2px solid #6366f1;
+      outline-offset: 4px;
+      border-radius: 0.75rem;
+      transition: outline 0.3s ease;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Contenedor Toast para notificaciones (sin alert()) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Modal personalizado de confirmación (sin confirm()) -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Reiniciar progreso</h3>
+      </div>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">
+        ¿Estás seguro de que deseas borrar el estado guardado de los 5 retos prácticos y del checklist de calidad?
+      </p>
+      <div class="flex justify-end gap-3">
+        <button id="modal-cancel-btn" class="px-4 py-2.5 rounded-xl text-sm font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+          Cancelar
+        </button>
+        <button id="modal-confirm-btn" class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-500 text-white transition shadow-lg shadow-rose-600/20">
+          Sí, reiniciar todo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra superior móvil -->
+  <header class="lg:hidden sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button id="mobile-menu-btn" aria-label="Abrir menú" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <div>
+        <span class="font-bold text-sm tracking-tight block">TS &amp; Vitest Pro</span>
+        <span id="mobile-progress-text" class="text-xs text-indigo-600 dark:text-indigo-400 font-medium">Progreso: 0%</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="theme-toggle-mobile" aria-label="Cambiar tema" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+        <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Backdrop móvil -->
+  <div id="sidebar-backdrop" class="fixed inset-0 z-30 bg-slate-950/60 backdrop-blur-xs hidden lg:hidden"></div>
+
+  <div class="flex min-h-screen">
+    <!-- SIDEBAR DE NAVEGACIÓN -->
+    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out">
+      <!-- Cabecera Sidebar -->
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white font-mono font-bold text-sm shadow-md shadow-indigo-500/20">
+              TS
+            </div>
+            <div>
+              <h1 class="font-bold text-sm leading-tight text-slate-900 dark:text-white">Manual TS + Testing</h1>
+              <p class="text-xs text-slate-500 dark:text-slate-400">De Cero a Nivel Pro</p>
+            </div>
+          </div>
+          <button id="theme-toggle-desktop" title="Cambiar tema claro/oscuro" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition">
+            <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Barra de progreso global -->
+        <div class="bg-slate-100 dark:bg-slate-800/80 rounded-xl p-3">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="font-medium text-slate-600 dark:text-slate-300">Progreso Práctico</span>
+            <span id="sidebar-progress-pct" class="font-bold text-indigo-600 dark:text-indigo-400">0%</span>
+          </div>
+          <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div id="sidebar-progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <p id="sidebar-progress-detail" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">0/11 hitos completados</p>
+        </div>
+
+        <!-- Buscador rápido -->
+        <div class="relative mt-3">
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Buscar (ej. satisfies, spyOn, alias)..."
+            class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none transition"
+          />
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <div id="search-results" class="hidden mt-2 max-h-48 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg divide-y divide-slate-100 dark:divide-slate-800"></div>
+      </div>
+
+      <!-- Enlaces de navegación por módulos -->
+      <nav id="nav-menu" class="flex-1 overflow-y-auto p-3 space-y-1">
+        <button data-target="part-1" class="nav-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium transition">
+          <span class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold shrink-0">I</span>
+          <span class="truncate">Docs Oficiales y Terminal</span>
+        </button>
+
+        <button data-target="part-2" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium transition">
+          <span class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold shrink-0">II</span>
+          <span class="truncate">Arquitectura y Alias (@/*)</span>
+        </button>
+
+        <button data-target="part-3" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium transition">
+          <span class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold shrink-0">III</span>
+          <span class="truncate">TypeScript: Base y Nivel Pro</span>
+        </button>
+
+        <button data-target="part-4" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium transition">
+          <span class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold shrink-0">IV</span>
+          <span class="truncate">Vitest: Testing Base y Pro</span>
+        </button>
+
+        <button data-target="part-5" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium transition">
+          <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0">V</span>
+          <span class="truncate">Proyecto Práctico Base (IDE)</span>
+        </button>
+
+        <button data-target="part-6" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium transition">
+          <span class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold shrink-0">VI</span>
+          <span class="truncate">5 Retos Progresivos (TDD)</span>
+        </button>
+
+        <button data-target="part-7" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium transition">
+          <span class="w-6 h-6 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center font-bold shrink-0">VII</span>
+          <span class="truncate">Checklist Quality Gate</span>
+        </button>
+      </nav>
+
+      <!-- Pie del Sidebar: Modo vista continua / Reset -->
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+        <button id="toggle-all-view" class="w-full py-2 px-3 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+          </svg>
+          <span id="toggle-all-label">Ver todo en una página</span>
+        </button>
+        <button id="reset-progress-btn" class="w-full py-1.5 px-3 rounded-xl text-[11px] font-medium text-slate-500 hover:text-rose-500 transition">
+          Reiniciar progreso guardado
+        </button>
+      </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 min-w-0 px-4 sm:px-8 lg:px-12 py-8 max-w-5xl mx-auto">
+
+      <!-- Banner Hero -->
+      <div class="mb-8 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 text-white shadow-xl shadow-indigo-950/20 relative overflow-hidden">
+        <div class="relative z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-xs text-xs font-semibold mb-3">
+            <span>Ruta de Formación Profesional</span>
+            <span>•</span>
+            <span>JS → TypeScript + Vitest</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
+            Manual Completo de TypeScript y Tests Unitarios
+          </h2>
+          <p class="text-indigo-100 text-sm sm:text-base max-w-2xl leading-relaxed">
+            Todo lo que un desarrollador JavaScript necesita para dominar el tipado estricto, alias de rutas, patrones avanzados, mocks, Fake Timers y TDD con documentación oficial y proyecto práctico.
+          </p>
+        </div>
+        <div class="absolute -right-10 -bottom-10 w-56 h-56 rounded-full bg-cyan-400/20 blur-2xl pointer-events-none"></div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- PARTE I: DOCUMENTACIÓN OFICIAL Y TERMINAL                             -->
+      <!-- ===================================================================== -->
+      <section id="part-1" class="manual-section space-y-8 animate-section">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Parte I</span>
+          <h2 class="text-2xl font-bold mt-1">Documentación Oficial y Guía de Ejecución en Terminal</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Fuentes primarias verificadas y flujo diario de comprobación profesional.</p>
+        </div>
+
+        <!-- Enlaces Oficiales en Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5" data-searchable="Documentacion Oficial TypeScript Vitest Handbook Narrowing Generics Utility Types TSConfig Expect Vi Coverage Jest Node">
+          <!-- Tarjeta TypeScript -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+            <div class="flex items-center gap-2.5 mb-4">
+              <span class="px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 font-mono text-xs font-bold">TS</span>
+              <h3 class="font-bold text-base">Documentación Oficial de TypeScript</h3>
+            </div>
+            <ul class="space-y-2.5 text-sm">
+              <li><a href="https://www.typescriptlang.org/docs/" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">↗ Portal Principal TypeScript Docs</a></li>
+              <li><a href="https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline">↗ TypeScript for JavaScript Programmers</a></li>
+              <li><a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline">↗ The Handbook: Everyday Types &amp; Basics</a></li>
+              <li><a href="https://www.typescriptlang.org/docs/handbook/2/narrowing.html" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline">↗ Narrowing (Type Guards y estrechamiento)</a></li>
+              <li><a href="https://www.typescriptlang.org/docs/handbook/2/generics.html" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline">↗ Generics y Manipulación de Tipos</a></li>
+              <li><a href="https://www.typescriptlang.org/docs/handbook/utility-types.html" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline">↗ Utility Types Reference (Partial, Pick, Omit...)</a></li>
+              <li><a href="https://www.typescriptlang.org/tsconfig/" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline">↗ TSConfig Reference &amp; Path Mapping</a></li>
+              <li><a href="https://www.typescriptlang.org/play" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline">↗ TypeScript Playground (Pruebas rápidas)</a></li>
+            </ul>
+          </div>
+
+          <!-- Tarjeta Testing -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+            <div class="flex items-center gap-2.5 mb-4">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-xs font-bold">TEST</span>
+              <h3 class="font-bold text-base">Documentación Oficial de Testing</h3>
+            </div>
+            <ul class="space-y-2.5 text-sm">
+              <li><a href="https://vitest.dev/guide/" target="_blank" rel="noopener" class="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">↗ Vitest Getting Started (Recomendado)</a></li>
+              <li><a href="https://vitest.dev/config/" target="_blank" rel="noopener" class="text-emerald-600 dark:text-emerald-400 hover:underline">↗ Configuring Vitest (vitest.config.ts)</a></li>
+              <li><a href="https://vitest.dev/api/expect" target="_blank" rel="noopener" class="text-emerald-600 dark:text-emerald-400 hover:underline">↗ Expect API (Todas las aserciones/matchers)</a></li>
+              <li><a href="https://vitest.dev/api/vi" target="_blank" rel="noopener" class="text-emerald-600 dark:text-emerald-400 hover:underline">↗ Vi Utility API (Mocks, Spies y Fake Timers)</a></li>
+              <li><a href="https://vitest.dev/guide/mocking" target="_blank" rel="noopener" class="text-emerald-600 dark:text-emerald-400 hover:underline">↗ Mocking Guide &amp; Test Lifecycle</a></li>
+              <li><a href="https://vitest.dev/guide/coverage" target="_blank" rel="noopener" class="text-emerald-600 dark:text-emerald-400 hover:underline">↗ Coverage Guide (Cobertura V8)</a></li>
+              <li><a href="https://nodejs.org/learn/test-runner/using-test-runner" target="_blank" rel="noopener" class="text-slate-600 dark:text-slate-300 hover:underline">↗ Alternativa: Node.js Native Test Runner</a></li>
+              <li><a href="https://jestjs.io/docs/getting-started" target="_blank" rel="noopener" class="text-slate-600 dark:text-slate-300 hover:underline">↗ Alternativa: Jest Official Docs</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Simulador Interactivo de Terminal -->
+        <div class="bg-slate-900 text-slate-100 rounded-2xl border border-slate-800 overflow-hidden shadow-lg" data-searchable="Terminal typecheck tsc noEmit vitest run coverage Stmts Branch Funcs Lines build">
+          <div class="px-5 py-3.5 bg-slate-950 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+              <span class="ml-2 text-xs font-mono text-slate-400">Simulador de Flujo Diario en Terminal — Haz clic para probar cada comando</span>
+            </div>
+          </div>
+
+          <div class="p-5 space-y-4">
+            <div class="flex flex-wrap gap-2">
+              <button data-sim-cmd="typecheck" class="sim-cmd-btn px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition">
+                1. npm run typecheck
+              </button>
+              <button data-sim-cmd="test" class="sim-cmd-btn px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition">
+                2. npm run test:run
+              </button>
+              <button data-sim-cmd="coverage" class="sim-cmd-btn px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 transition">
+                3. npm run test:coverage
+              </button>
+              <button data-sim-cmd="build" class="sim-cmd-btn px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 transition">
+                4. npm run build
+              </button>
+            </div>
+
+            <pre id="terminal-output" class="bg-slate-950 rounded-xl p-4 font-mono text-xs sm:text-sm text-emerald-400 overflow-x-auto border border-slate-800/80 leading-relaxed">$ npm run typecheck
+> tsc --noEmit
+
+✓ 0 errores de tipos encontrados en src/ y tests/.</pre>
+
+            <div id="terminal-explanation" class="text-xs text-slate-300 bg-slate-800/60 rounded-xl p-3.5 border border-slate-700/60">
+              <strong>¿Qué comprueba?</strong> Analiza todos los archivos de <code>src/</code> y <code>tests/</code> aplicando las reglas estrictas de <code>tsconfig.json</code> sin generar archivos <code>.js</code>. Si hay un fallo de tipos incluso dentro de un test, indica el archivo y la línea exacta.
+            </div>
+          </div>
+        </div>
+
+        <!-- Comandos adicionales útiles -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+            <h4 class="text-xs font-bold uppercase text-slate-500 mb-2">Ejecutar un solo archivo de test</h4>
+            <div class="code-wrapper" data-lang="bash">
+              <pre><code>npx vitest run tests/calculadoraPrecios.test.ts</code></pre>
+            </div>
+          </div>
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+            <h4 class="text-xs font-bold uppercase text-slate-500 mb-2">Filtrar tests por nombre</h4>
+            <div class="code-wrapper" data-lang="bash">
+              <pre><code>npx vitest run -t "cupón porcentual"</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- PARTE II: ARQUITECTURA, ARCHIVOS Y ALIAS DE RUTAS                     -->
+      <!-- ===================================================================== -->
+      <section id="part-2" class="manual-section hidden space-y-8 animate-section">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Parte II</span>
+          <h2 class="text-2xl font-bold mt-1">Arquitectura del Proyecto, Archivos y Alias de Rutas</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Cómo inicializar el proyecto desde cero y sincronizar alias limpios (<code>@domain/*</code>, <code>@services/*</code>).</p>
+        </div>
+
+        <!-- Comandos de inicialización -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3" data-searchable="npm init install typescript vitest coverage-v8 tsx">
+          <h3 class="font-bold text-base">1. Inicialización desde cero</h3>
+          <div class="code-wrapper" data-lang="bash">
+            <pre><code>mkdir proyecto-pedidos && cd proyecto-pedidos
+npm init -y
+npm install -D typescript @types/node tsx vitest @vitest/coverage-v8</code></pre>
+          </div>
+        </div>
+
+        <!-- Estructura de carpetas + Regla de Alias -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5" data-searchable="estructura carpetas domain services tests alias baseUrl paths resolve">
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+            <h3 class="font-bold text-base mb-3">2. Mapa de Carpetas</h3>
+            <div class="code-wrapper" data-lang="text">
+              <pre><code>proyecto-pedidos/
+├── src/                  # Código fuente (.ts)
+│   ├── domain/           # Contratos, interfaces y tipos
+│   │   └── tipos.ts
+│   └── services/         # Lógica de negocio
+│       ├── calculadoraPrecios.ts
+│       └── procesadorPedidos.ts
+├── tests/                # Pruebas unitarias (espejo)
+│   ├── calculadoraPrecios.test.ts
+│   └── procesadorPedidos.test.ts
+├── .gitignore
+├── package.json
+├── tsconfig.json
+└── vitest.config.ts</code></pre>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-base mb-3">3. Doble Configuración de Alias</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+                Para evitar importaciones relativas frágiles como <code>../../../domain/tipos</code> y usar <code>@domain/tipos</code>, es obligatorio declararlos en <strong>dos sitios</strong>:
+              </p>
+              <div class="space-y-3">
+                <div class="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+                  <span class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 block">1. tsconfig.json (baseUrl + paths)</span>
+                  <span class="text-xs text-slate-600 dark:text-slate-300">Para que el compilador <code>tsc</code> y el autocompletado de VS Code entiendan los tipos.</span>
+                </div>
+                <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                  <span class="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400 block">2. vitest.config.ts (resolve.alias)</span>
+                  <span class="text-xs text-slate-600 dark:text-slate-300">Para que Vitest resuelva las rutas reales en tiempo de ejecución de tests.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestañas de archivos de configuración -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden" data-searchable="package.json tsconfig.json vitest.config.ts strict noUncheckedIndexedAccess exactOptionalPropertyTypes">
+          <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 bg-slate-50 dark:bg-slate-950/50">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Archivos de Configuración Base</span>
+            <div class="flex flex-wrap gap-1.5" id="config-tabs">
+              <button data-cfg="pkg" class="cfg-tab-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-indigo-600 text-white">package.json</button>
+              <button data-cfg="tsc" class="cfg-tab-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">tsconfig.json</button>
+              <button data-cfg="vit" class="cfg-tab-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">vitest.config.ts</button>
+              <button data-cfg="git" class="cfg-tab-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">.gitignore</button>
+            </div>
+          </div>
+
+          <div class="p-5">
+            <div id="cfg-pkg" class="cfg-panel">
+              <div class="code-wrapper" data-lang="json">
+                <pre><code>{
+  "name": "proyecto-pedidos-ts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^3.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}</code></pre>
+              </div>
+            </div>
+
+            <div id="cfg-tsc" class="cfg-panel hidden">
+              <div class="code-wrapper" data-lang="json">
+                <pre><code>{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "rootDir": ".",
+    "outDir": "./dist",
+
+    /* ALIAS DE RUTAS */
+    "baseUrl": ".",
+    "paths": {
+      "@domain/*": ["src/domain/*"],
+      "@services/*": ["src/services/*"]
+    },
+
+    /* MODO ESTRICTO PROFESIONAL */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist"]
+}</code></pre>
+              </div>
+            </div>
+
+            <div id="cfg-vit" class="cfg-panel hidden">
+              <div class="code-wrapper" data-lang="typescript">
+                <pre><code>import { defineConfig } from "vitest/config";
+import { fileURLToPath, URL } from "node:url";
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "@domain": fileURLToPath(new URL("./src/domain", import.meta.url)),
+      "@services": fileURLToPath(new URL("./src/services", import.meta.url)),
+    },
+  },
+  test: {
+    globals: false,
+    environment: "node",
+    include: ["tests/**/*.test.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+      include: ["src/**/*.ts"],
+      exclude: ["src/domain/tipos.ts"],
+    },
+  },
+});</code></pre>
+              </div>
+            </div>
+
+            <div id="cfg-git" class="cfg-panel hidden">
+              <div class="code-wrapper" data-lang="text">
+                <pre><code>node_modules/
+dist/
+coverage/
+.env</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- PARTE III: TYPESCRIPT (BASE Y NIVEL PRO)                              -->
+      <!-- ===================================================================== -->
+      <section id="part-3" class="manual-section hidden space-y-8 animate-section">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Parte III</span>
+          <h2 class="text-2xl font-bold mt-1">Dominio Completo de TypeScript (Base y Nivel Pro)</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Desde los fundamentos del sistema de tipos hasta patrones avanzados de nivel arquitecto.</p>
+        </div>
+
+        <!-- Bloque 1: Fundamentos -->
+        <div class="space-y-5">
+          <h3 class="text-lg font-bold flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs">Nivel Base</span>
+            Fundamentos Esenciales
+          </h3>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3" data-searchable="primitivos tuplas as const enum ROLES">
+            <h4 class="font-bold text-sm">1. Primitivos, Tuplas y <code>as const</code></h4>
+            <div class="code-wrapper" data-lang="typescript">
+              <pre><code>// Primitivos (siempre en minúscula) y Tuplas
+const nombre: string = "Laura";
+type Coordenada = [latitud: number, longitud: number];
+const madrid: Coordenada = [40.4168, -3.7038];
+
+// Patrón moderno para constantes enumeradas ('as const' en lugar de 'enum')
+const ROLES = {
+  ADMIN: "admin",
+  EDITOR: "editor",
+  LECTOR: "lector",
+} as const;
+
+type RolUsuario = (typeof ROLES)[keyof typeof ROLES]; // "admin" | "editor" | "lector"</code></pre>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3" data-searchable="any unknown never void parsearNombre">
+            <h4 class="font-bold text-sm">2. Tipos Especiales: <code>any</code> vs <code>unknown</code> vs <code>never</code> vs <code>void</code></h4>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs mb-2">
+              <div class="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20">
+                <strong class="text-rose-600 dark:text-rose-400 block font-mono">any</strong>
+                <span>Desactiva TS. Prohibido.</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                <strong class="text-emerald-600 dark:text-emerald-400 block font-mono">unknown</strong>
+                <span>Seguro. Exige validar antes.</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20">
+                <strong class="text-sky-600 dark:text-sky-400 block font-mono">void</strong>
+                <span>Función sin retorno útil.</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                <strong class="text-purple-600 dark:text-purple-400 block font-mono">never</strong>
+                <span>Estado imposible / error.</span>
+              </div>
+            </div>
+            <div class="code-wrapper" data-lang="typescript">
+              <pre><code>function parsearNombre(entrada: unknown): string {
+  if (typeof entrada === "string" && entrada.trim().length > 0) {
+    return entrada.trim();
+  }
+  throw new Error("Entrada inválida: se esperaba un string no vacío");
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3" data-searchable="Narrowing uniones discriminadas exhaustividad switch">
+            <h4 class="font-bold text-sm">3. Uniones Discriminadas y Exhaustividad con <code>never</code></h4>
+            <div class="code-wrapper" data-lang="typescript">
+              <pre><code>type RespuestaApi&lt;T&gt; =
+  | { estado: "ok"; datos: T }
+  | { estado: "error"; codigo: number; mensaje: string };
+
+function procesarRespuesta(res: RespuestaApi&lt;{ nombre: string }&gt;): string {
+  switch (res.estado) {
+    case "ok":
+      return `Bienvenido, ${res.datos.nombre}`;
+    case "error":
+      return `Fallo (${res.codigo}): ${res.mensaje}`;
+    default: {
+      // Si añades un nuevo estado y olvidas manejarlo, TS dará error aquí
+      const _exhaustivo: never = res;
+      return _exhaustivo;
+    }
+  }
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3" data-searchable="Generics Partial Omit Pick Readonly Record">
+            <h4 class="font-bold text-sm">4. Genéricos (<code>&lt;T&gt;</code>) y Utility Types</h4>
+            <div class="code-wrapper" data-lang="typescript">
+              <pre><code>function buscarPorId&lt;T extends { id: string }&gt;(lista: readonly T[], id: string): T | undefined {
+  return lista.find((item) => item.id === id);
+}
+
+interface Producto {
+  id: string;
+  nombre: string;
+  precio: number;
+  stock: number;
+}
+
+type ActualizarProductoDTO = Partial&lt;Omit&lt;Producto, "id"&gt;&gt;;
+type ResumenProducto = Pick&lt;Producto, "id" | "nombre" | "precio"&gt;;
+type ProductoSoloLectura = Readonly&lt;Producto&gt;;
+type CatalogoPorId = Record&lt;string, Producto&gt;;</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque 2: Nivel Pro -->
+        <div class="space-y-5 pt-4">
+          <h3 class="text-lg font-bold flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs">Nivel Pro</span>
+            Patrones Avanzados de TypeScript
+          </h3>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5" data-searchable="satisfies asserts Template Literal Mapped Types infer">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+              <h4 class="font-bold text-sm">Operador <code>satisfies</code></h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Valida contra un tipo general sin perder el autocompletado exacto de las claves.</p>
+              <div class="code-wrapper" data-lang="typescript">
+                <pre><code>type RutaConfig = { path: string; roles: readonly string[] };
+
+const RUTAS = {
+  login: { path: "/login", roles: ["publico"] },
+  panel: { path: "/admin", roles: ["admin"] },
+} satisfies Record&lt;string, RutaConfig&gt;;
+
+console.log(RUTAS.panel.path); // Autocompletado exacto</code></pre>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+              <h4 class="font-bold text-sm">Funciones de Aserción (<code>asserts</code>)</h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Estrechan el tipo de una variable tras validar una precondición.</p>
+              <div class="code-wrapper" data-lang="typescript">
+                <pre><code>function assertDefinido&lt;T&gt;(val: T | null | undefined, msg: string): asserts val is T {
+  if (val === null || val === undefined) throw new Error(msg);
+}
+
+function saludar(nombre?: string) {
+  assertDefinido(nombre, "Nombre obligatorio");
+  return nombre.toUpperCase(); // TS sabe que ya es string
+}</code></pre>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+              <h4 class="font-bold text-sm">Template Literal &amp; Mapped Types</h4>
+              <div class="code-wrapper" data-lang="typescript">
+                <pre><code>type Entidad = "usuario" | "pedido";
+type Accion = "creado" | "eliminado";
+type Evento = `${Entidad}:${Accion}`;
+
+type FiltrosActivos&lt;T&gt; = {
+  [K in keyof T]?: boolean;
+};</code></pre>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+              <h4 class="font-bold text-sm">Conditional Types e <code>infer</code></h4>
+              <div class="code-wrapper" data-lang="typescript">
+                <pre><code>type ResultadoPromesa&lt;T&gt; =
+  T extends (...args: never[]) =&gt; Promise&lt;infer R&gt; ? R : never;
+
+async function cargarConfig() {
+  return { reintentos: 3, timeoutMs: 5000 };
+}
+
+type Config = ResultadoPromesa&lt;typeof cargarConfig&gt;;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- PARTE IV: VITEST TESTING (BASE Y NIVEL PRO)                           -->
+      <!-- ===================================================================== -->
+      <section id="part-4" class="manual-section hidden space-y-8 animate-section">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Parte IV</span>
+          <h2 class="text-2xl font-bold mt-1">Dominio Completo de Tests Unitarios con Vitest</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Principios FIRST, estructura AAA, matchers, tests parametrizados, mocks, spies y Fake Timers.</p>
+        </div>
+
+        <!-- Principios FIRST & AAA -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-searchable="FIRST AAA Arrange Act Assert Fast Isolated Repeatable">
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+            <h3 class="font-bold text-sm mb-2 text-indigo-600 dark:text-indigo-400">Principios F.I.R.S.T.</h3>
+            <ul class="text-xs space-y-1.5 text-slate-600 dark:text-slate-300">
+              <li><strong>Fast:</strong> Ejecución en milisegundos sin red ni BD real.</li>
+              <li><strong>Isolated:</strong> Ningún test depende de otro test.</li>
+              <li><strong>Repeatable:</strong> Mismo resultado en cualquier máquina y hora.</li>
+              <li><strong>Self-Validating:</strong> Pasa (verde) o falla (rojo) automáticamente.</li>
+              <li><strong>Timely:</strong> Escritos junto al código o antes (TDD).</li>
+            </ul>
+          </div>
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+            <h3 class="font-bold text-sm mb-2 text-emerald-600 dark:text-emerald-400">Anatomía A.A.A.</h3>
+            <ul class="text-xs space-y-1.5 text-slate-600 dark:text-slate-300">
+              <li><strong>1. Arrange (Preparar):</strong> Instanciar datos de entrada y configurar mocks.</li>
+              <li><strong>2. Act (Actuar):</strong> Llamar a la función o método bajo prueba.</li>
+              <li><strong>3. Assert (Verificar):</strong> Comprobar el valor devuelto o las llamadas a mocks con <code>expect()</code>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Matchers e it.each -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4" data-searchable="expect toBe toEqual toMatchObject toThrow rejects it.each">
+          <h3 class="font-bold text-base">Matchers Esenciales y Tests Parametrizados (<code>it.each</code>)</h3>
+          <div class="code-wrapper" data-lang="typescript">
+            <pre><code>// Aserciones principales
+expect(resultado).toBe(100);                               // Primitivos (===)
+expect(objeto).toEqual({ id: "1", activo: true });         // Objetos/arrays profundos
+expect(objeto).toMatchObject({ id: "1" });                 // Subconjunto de propiedades
+expect(0.1 + 0.2).toBeCloseTo(0.3, 5);                     // Decimales
+expect(() =&gt; funcionInvalida()).toThrow("Mensaje esperado"); // Errores síncronos
+await expect(promesaFallida()).rejects.toThrow("Error");     // Promesas rechazadas
+
+// Tests parametrizados sin duplicar bloques 'it'
+it.each([
+  { entrada: 100, descuento: 0, esperado: 100 },
+  { entrada: 100, descuento: 20, esperado: 80 },
+  { entrada: 50, descuento: 100, esperado: 0 },
+])("con precio $entrada y descuento $descuento% devuelve $esperado", ({ entrada, descuento, esperado }) =&gt; {
+  expect(aplicarDescuento(entrada, descuento)).toBe(esperado);
+});</code></pre>
+          </div>
+        </div>
+
+        <!-- Testing Pro: Mocks vs Spies y Fake Timers -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5" data-searchable="vi.fn vi.spyOn vi.mock useFakeTimers setSystemTime advanceTimersByTime useRealTimers">
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+            <h3 class="font-bold text-base"><code>vi.fn()</code> vs <code>vi.spyOn()</code> vs <code>vi.mock()</code></h3>
+            <ul class="text-xs space-y-2 text-slate-600 dark:text-slate-300">
+              <li><strong><code>vi.fn()</code>:</strong> Crea una función falsa desde cero. Ideal para inyectar interfaces.</li>
+              <li><strong><code>vi.spyOn(obj, "metodo")</code>:</strong> Espía un método real existente sin romperlo (o sobrescribiéndolo temporalmente).</li>
+              <li><strong><code>vi.mock("./ruta")</code>:</strong> Sustituye un módulo importado completo.</li>
+            </ul>
+            <div class="code-wrapper" data-lang="typescript">
+              <pre><code>const warnSpy = vi.spyOn(console, "warn").mockImplementation(() =&gt; {});
+// ... ejecutar código ...
+expect(warnSpy).toHaveBeenCalledWith("Alerta");
+warnSpy.mockRestore();</code></pre>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+            <h3 class="font-bold text-base">Control del Tiempo (<code>Fake Timers</code>)</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-300">
+              Nunca esperes segundos reales en un test unitario. Congela el reloj y avanza el tiempo instantáneamente:
+            </p>
+            <div class="code-wrapper" data-lang="typescript">
+              <pre><code>beforeEach(() =&gt; {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-06-01T10:00:00Z"));
+});
+
+afterEach(() =&gt; {
+  vi.useRealTimers(); // Obligatorio restaurar
+});
+
+it("caduca tras avanzar 15 minutos", () =&gt; {
+  const token = crearTokenMinutos(10);
+  vi.advanceTimersByTime(15 * 60 * 1000);
+  expect(estaCaducado(token)).toBe(true);
+});</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- PARTE V: PROYECTO PRÁCTICO BASE (EXPLORADOR IDE)                      -->
+      <!-- ===================================================================== -->
+      <section id="part-5" class="manual-section hidden space-y-6 animate-section">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Parte V</span>
+          <h2 class="text-2xl font-bold mt-1">Proyecto Práctico Base: "Motor de Pedidos"</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Explora los 5 archivos completos de producción y tests. Copia cada archivo en tu proyecto y pasa <code>typecheck</code> y <code>test:coverage</code>.</p>
+        </div>
+
+        <!-- Visor estilo IDE -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl" data-searchable="tipos.ts calculadoraPrecios.ts procesadorPedidos.ts calculadoraPrecios.test.ts procesadorPedidos.test.ts">
+          <!-- Barra superior de pestañas de archivos -->
+          <div class="bg-slate-950 border-b border-slate-800 px-3 pt-3 flex items-center gap-1.5 overflow-x-auto" id="ide-tabs">
+            <button data-file="tipos" class="ide-tab-btn px-3.5 py-2 rounded-t-xl text-xs font-mono font-semibold bg-slate-900 text-cyan-400 border-t border-x border-slate-800 shrink-0">
+              src/domain/tipos.ts
+            </button>
+            <button data-file="calc" class="ide-tab-btn px-3.5 py-2 rounded-t-xl text-xs font-mono font-medium text-slate-400 hover:text-slate-200 shrink-0">
+              src/services/calculadoraPrecios.ts
+            </button>
+            <button data-file="proc" class="ide-tab-btn px-3.5 py-2 rounded-t-xl text-xs font-mono font-medium text-slate-400 hover:text-slate-200 shrink-0">
+              src/services/procesadorPedidos.ts
+            </button>
+            <button data-file="test-calc" class="ide-tab-btn px-3.5 py-2 rounded-t-xl text-xs font-mono font-medium text-emerald-400/80 hover:text-emerald-300 shrink-0">
+              tests/calculadoraPrecios.test.ts
+            </button>
+            <button data-file="test-proc" class="ide-tab-btn px-3.5 py-2 rounded-t-xl text-xs font-mono font-medium text-emerald-400/80 hover:text-emerald-300 shrink-0">
+              tests/procesadorPedidos.test.ts
+            </button>
+          </div>
+
+          <!-- Paneles de archivos -->
+          <div class="p-4 sm:p-5">
+            <div id="file-tipos" class="ide-panel">
+              <div class="code-wrapper" data-lang="typescript">
+                <pre><code>export type NivelSuscripcion = "free" | "pro" | "enterprise";
+
+export interface Producto {
+  readonly id: string;
+  nombre: string;
+  precioBase: number;
+}
+
+export interface ItemCarrito {
+  producto: Producto;
+  cantidad: number;
+}
+
+export type CuponDescuento =
+  | {
+      tipo: "porcentaje";
+      codigo: string;
+      porcentaje: number;
+      expiraEl: Date;
+    }
+  | {
+      tipo: "fijo";
+      codigo: string;
+      descuentoEuros: number;
+      expiraEl: Date;
+    };
+
+export type ResultadoPedido =
+  | {
+      estado: "completado";
+      transaccionId: string;
+      totalCobrado: number;
+    }
+  | {
+      estado: "rechazado";
+      motivo: "SIN_STOCK" | "PAGO_FALLIDO" | "CARRITO_VACIO";
+      detalle: string;
+    };
+
+export interface RepositorioInventario {
+  hayStock(productoId: string, cantidad: number): Promise&lt;boolean&gt;;
+  descontarStock(productoId: string, cantidad: number): Promise&lt;void&gt;;
+}
+
+export interface PasarelaPago {
+  cobrar(usuarioId: string, importe: number): Promise&lt;{ transaccionId: string }&gt;;
+}</code></pre>
+              </div>
+            </div>
+
+            <div id="file-calc" class="ide-panel hidden">
+              <div class="code-wrapper" data-lang="typescript">
+                <pre><code>import type { CuponDescuento, ItemCarrito, NivelSuscripcion } from "@domain/tipos";
+
+const DESCUENTOS_SUSCRIPCION: Record&lt;NivelSuscripcion, number&gt; = {
+  free: 0,
+  pro: 0.1,
+  enterprise: 0.2,
+};
+
+export function calcularPrecioFinal(
+  items: readonly ItemCarrito[],
+  nivelUsuario: NivelSuscripcion,
+  cupon?: CuponDescuento,
+  fechaActual: Date = new Date()
+): number {
+  if (items.length === 0) {
+    return 0;
+  }
+
+  const subtotal = items.reduce((acumulado, item) =&gt; {
+    if (item.cantidad &lt;= 0) {
+      throw new Error(`Cantidad inválida para el producto ${item.producto.nombre}`);
+    }
+    if (item.producto.precioBase &lt; 0) {
+      throw new Error(`Precio negativo no permitido en ${item.producto.nombre}`);
+    }
+    return acumulado + item.producto.precioBase * item.cantidad;
+  }, 0);
+
+  const porcentajeNivel = DESCUENTOS_SUSCRIPCION[nivelUsuario];
+  let total = subtotal * (1 - porcentajeNivel);
+
+  if (cupon &amp;&amp; cupon.expiraEl.getTime() &gt;= fechaActual.getTime()) {
+    if (cupon.tipo === "porcentaje") {
+      total = total * (1 - cupon.porcentaje / 100);
+    } else {
+      total = total - cupon.descuentoEuros;
+    }
+  }
+
+  const totalSeguro = Math.max(0, total);
+  return Math.round(totalSeguro * 100) / 100;
+}</code></pre>
+              </div>
+            </div>
+
+            <div id="file-proc" class="ide-panel hidden">
+              <div class="code-wrapper" data-lang="typescript">
+                <pre><code>import type {
+  CuponDescuento,
+  ItemCarrito,
+  NivelSuscripcion,
+  PasarelaPago,
+  RepositorioInventario,
+  ResultadoPedido,
+} from "@domain/tipos";
+import { calcularPrecioFinal } from "@services/calculadoraPrecios";
+
+export class ProcesadorPedidos {
+  constructor(
+    private readonly inventario: RepositorioInventario,
+    private readonly pasarelaPago: PasarelaPago
+  ) {}
+
+  async procesar(
+    usuarioId: string,
+    nivelUsuario: NivelSuscripcion,
+    items: readonly ItemCarrito[],
+    cupon?: CuponDescuento
+  ): Promise&lt;ResultadoPedido&gt; {
+    if (items.length === 0) {
+      return {
+        estado: "rechazado",
+        motivo: "CARRITO_VACIO",
+        detalle: "No se puede procesar un pedido sin productos",
+      };
+    }
+
+    for (const item of items) {
+      const disponible = await this.inventario.hayStock(item.producto.id, item.cantidad);
+      if (!disponible) {
+        return {
+          estado: "rechazado",
+          motivo: "SIN_STOCK",
+          detalle: `Stock insuficiente para ${item.producto.nombre}`,
+        };
+      }
+    }
+
+    const totalCobrado = calcularPrecioFinal(items, nivelUsuario, cupon);
+
+    try {
+      const { transaccionId } = await this.pasarelaPago.cobrar(usuarioId, totalCobrado);
+
+      for (const item of items) {
+        await this.inventario.descontarStock(item.producto.id, item.cantidad);
+      }
+
+      return {
+        estado: "completado",
+        transaccionId,
+        totalCobrado,
+      };
+    } catch (error: unknown) {
+      const mensaje = error instanceof Error ? error.message : "Error desconocido en pasarela";
+      return {
+        estado: "rechazado",
+        motivo: "PAGO_FALLIDO",
+        detalle: mensaje,
+      };
+    }
+  }
+}</code></pre>
+              </div>
+            </div>
+
+            <div id="file-test-calc" class="ide-panel hidden">
+              <div class="code-wrapper" data-lang="typescript">
+                <pre><code>import { describe, it, expect } from "vitest";
+import type { CuponDescuento, ItemCarrito } from "@domain/tipos";
+import { calcularPrecioFinal } from "@services/calculadoraPrecios";
+
+describe("calcularPrecioFinal", () =&gt; {
+  const teclado: ItemCarrito = {
+    producto: { id: "p1", nombre: "Teclado Mecánico", precioBase: 100 },
+    cantidad: 2,
+  };
+
+  it("debería devolver 0 si el carrito está vacío", () =&gt; {
+    expect(calcularPrecioFinal([], "free")).toBe(0);
+  });
+
+  it.each([
+    { nivel: "free", esperado: 200 },
+    { nivel: "pro", esperado: 180 },
+    { nivel: "enterprise", esperado: 160 },
+  ] as const)(
+    "debería calcular $esperado€ para un usuario con suscripción $nivel",
+    ({ nivel, esperado }) =&gt; {
+      const total = calcularPrecioFinal([teclado], nivel);
+      expect(total).toBe(esperado);
+    }
+  );
+
+  it("debería aplicar un cupón porcentual válido sobre el precio con descuento de suscripción", () =&gt; {
+    const fechaActual = new Date("2026-06-01T10:00:00Z");
+    const cupon: CuponDescuento = {
+      tipo: "porcentaje",
+      codigo: "VERANO10",
+      porcentaje: 10,
+      expiraEl: new Date("2026-06-15T00:00:00Z"),
+    };
+
+    const total = calcularPrecioFinal([teclado], "pro", cupon, fechaActual);
+    expect(total).toBe(162);
+  });
+
+  it("debería ignorar un cupón si ya ha expirado", () =&gt; {
+    const fechaActual = new Date("2026-06-20T10:00:00Z");
+    const cuponExpirado: CuponDescuento = {
+      tipo: "fijo",
+      codigo: "CADUCADO",
+      descuentoEuros: 50,
+      expiraEl: new Date("2026-06-15T00:00:00Z"),
+    };
+
+    const total = calcularPrecioFinal([teclado], "free", cuponExpirado, fechaActual);
+    expect(total).toBe(200);
+  });
+
+  it("nunca debería devolver un importe negativo si el cupón fijo supera el subtotal", () =&gt; {
+    const fechaActual = new Date("2026-06-01T10:00:00Z");
+    const cuponGigante: CuponDescuento = {
+      tipo: "fijo",
+      codigo: "REGALO500",
+      descuentoEuros: 500,
+      expiraEl: new Date("2026-06-15T00:00:00Z"),
+    };
+
+    const total = calcularPrecioFinal([teclado], "free", cuponGigante, fechaActual);
+    expect(total).toBe(0);
+  });
+
+  it("debería lanzar un error si algún producto tiene cantidad cero o negativa", () =&gt; {
+    const itemInvalido: ItemCarrito = {
+      producto: { id: "p2", nombre: "Ratón", precioBase: 50 },
+      cantidad: 0,
+    };
+
+    expect(() =&gt; calcularPrecioFinal([itemInvalido], "free")).toThrow("Cantidad inválida");
+  });
+});</code></pre>
+              </div>
+            </div>
+
+            <div id="file-test-proc" class="ide-panel hidden">
+              <div class="code-wrapper" data-lang="typescript">
+                <pre><code>import { describe, it, expect, vi, beforeEach } from "vitest";
+import type {
+  ItemCarrito,
+  PasarelaPago,
+  RepositorioInventario,
+} from "@domain/tipos";
+import { ProcesadorPedidos } from "@services/procesadorPedidos";
+
+describe("ProcesadorPedidos", () =&gt; {
+  const inventarioMock: RepositorioInventario = {
+    hayStock: vi.fn(),
+    descontarStock: vi.fn(),
+  };
+
+  const pasarelaMock: PasarelaPago = {
+    cobrar: vi.fn(),
+  };
+
+  let procesador: ProcesadorPedidos;
+
+  const itemsEjemplo: ItemCarrito[] = [
+    { producto: { id: "prod-1", nombre: "Monitor 4K", precioBase: 300 }, cantidad: 1 },
+  ];
+
+  beforeEach(() =&gt; {
+    vi.clearAllMocks();
+    procesador = new ProcesadorPedidos(inventarioMock, pasarelaMock);
+  });
+
+  it("debería completar el pedido, cobrar y descontar stock cuando todo es correcto", async () =&gt; {
+    vi.mocked(inventarioMock.hayStock).mockResolvedValue(true);
+    vi.mocked(pasarelaMock.cobrar).mockResolvedValue({ transaccionId: "TX-2026-01" });
+
+    const resultado = await procesador.procesar("user-1", "pro", itemsEjemplo);
+
+    expect(resultado).toEqual({
+      estado: "completado",
+      transaccionId: "TX-2026-01",
+      totalCobrado: 270,
+    });
+    expect(pasarelaMock.cobrar).toHaveBeenCalledWith("user-1", 270);
+    expect(inventarioMock.descontarStock).toHaveBeenCalledTimes(1);
+    expect(inventarioMock.descontarStock).toHaveBeenCalledWith("prod-1", 1);
+  });
+
+  it("debería rechazar el pedido sin cobrar ni descontar stock si no hay inventario", async () =&gt; {
+    vi.mocked(inventarioMock.hayStock).mockResolvedValue(false);
+
+    const resultado = await procesador.procesar("user-1", "free", itemsEjemplo);
+
+    expect(resultado.estado).toBe("rechazado");
+    if (resultado.estado === "rechazado") {
+      expect(resultado.motivo).toBe("SIN_STOCK");
+    }
+    expect(pasarelaMock.cobrar).not.toHaveBeenCalled();
+    expect(inventarioMock.descontarStock).not.toHaveBeenCalled();
+  });
+
+  it("debería rechazar el pedido y NO descontar stock si falla la pasarela de pago", async () =&gt; {
+    vi.mocked(inventarioMock.hayStock).mockResolvedValue(true);
+    vi.mocked(pasarelaMock.cobrar).mockRejectedValue(new Error("Tarjeta denegada"));
+
+    const resultado = await procesador.procesar("user-1", "free", itemsEjemplo);
+
+    expect(resultado).toEqual({
+      estado: "rechazado",
+      motivo: "PAGO_FALLIDO",
+      detalle: "Tarjeta denegada",
+    });
+    expect(inventarioMock.descontarStock).not.toHaveBeenCalled();
+  });
+});</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- PARTE VI: 5 RETOS PRÁCTICOS PROGRESIVOS                               -->
+      <!-- ===================================================================== -->
+      <section id="part-6" class="manual-section hidden space-y-6 animate-section">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Parte VI</span>
+          <h2 class="text-2xl font-bold mt-1">5 Retos Prácticos para Resolver por Cuenta Propia</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Implementa cada reto sobre el proyecto base sin usar <code>any</code> y manteniendo &gt;90% de cobertura. Marca cada reto al completarlo.</p>
+        </div>
+
+        <div class="space-y-4" id="challenges-container">
+          <!-- Reto 1 -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs" data-searchable="Reto 1 Calculadora Gastos Envio ZonaEnvio satisfies it.each">
+            <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+              <div>
+                <span class="px-2.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold">Reto 1 • Tipos Literales y satisfies</span>
+                <h3 class="font-bold text-lg mt-1">Calculadora de Gastos de Envío</h3>
+              </div>
+              <label class="inline-flex items-center gap-2 cursor-pointer px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500/10 transition select-none">
+                <input type="checkbox" data-progress-id="reto-1" class="progress-checkbox w-4 h-4 accent-emerald-500 rounded" />
+                <span class="text-xs font-semibold">Completado</span>
+              </label>
+            </div>
+            <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1.5 list-disc pl-5 mb-4">
+              <li>Definir <code>export type ZonaEnvio = "ES" | "EU" | "INT";</code> en <code>src/domain/tipos.ts</code>.</li>
+              <li>Envío gratuito (<code>0 €</code>) si el importe del pedido es <strong>&gt;= 100 €</strong>.</li>
+              <li>Tarifas base (&lt; 100 €): <code>"ES" = 5 €</code>, <code>"EU" = 15 €</code>, <code>"INT" = 30 €</code>.</li>
+              <li>Usuarios <code>"enterprise"</code> tienen un <strong>50% de descuento</strong> en envío. Lanzar error si importe &lt; 0.</li>
+            </ul>
+            <details class="group bg-slate-50 dark:bg-slate-950/60 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-800">
+              <summary class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 cursor-pointer select-none">Ver pista de arquitectura</summary>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
+                Usa <code>const TARIFAS = { ES: 5, EU: 15, INT: 30 } satisfies Record&lt;ZonaEnvio, number&gt;;</code> y prueba todos los casos borde (99.99 € vs 100 €) con <code>it.each</code>.
+              </p>
+            </details>
+          </div>
+
+          <!-- Reto 2 -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs" data-searchable="Reto 2 Notificador Pedidos Degradacion elegante spyOn console.warn">
+            <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+              <div>
+                <span class="px-2.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold">Reto 2 • Mocks y Spies</span>
+                <h3 class="font-bold text-lg mt-1">Notificador con Degradación Elegante</h3>
+              </div>
+              <label class="inline-flex items-center gap-2 cursor-pointer px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500/10 transition select-none">
+                <input type="checkbox" data-progress-id="reto-2" class="progress-checkbox w-4 h-4 accent-emerald-500 rounded" />
+                <span class="text-xs font-semibold">Completado</span>
+              </label>
+            </div>
+            <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1.5 list-disc pl-5 mb-4">
+              <li>Añadir interfaz <code>ServicioNotificaciones</code> e inyectarla de forma opcional en <code>ProcesadorPedidos</code>.</li>
+              <li><strong>Regla crítica:</strong> Si el envío de confirmación falla (lanza error), <strong>el pedido NO debe rechazarse</strong>; captura el error, registra <code>console.warn</code> y devuelve <code>"completado"</code>.</li>
+            </ul>
+            <details class="group bg-slate-50 dark:bg-slate-950/60 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-800">
+              <summary class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 cursor-pointer select-none">Ver pista de testing</summary>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
+                En <code>procesadorPedidos.test.ts</code>, usa <code>const warnSpy = vi.spyOn(console, "warn").mockImplementation(() =&gt; {});</code> y verifica que <code>expect(warnSpy).toHaveBeenCalled()</code> mientras el pedido sigue completado.
+              </p>
+            </details>
+          </div>
+
+          <!-- Reto 3 -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs" data-searchable="Reto 3 Control Antifraude Fake Timers useFakeTimers advanceTimersByTime">
+            <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+              <div>
+                <span class="px-2.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold">Reto 3 • Fake Timers</span>
+                <h3 class="font-bold text-lg mt-1">Control Antifraude por Intentos Fallidos</h3>
+              </div>
+              <label class="inline-flex items-center gap-2 cursor-pointer px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500/10 transition select-none">
+                <input type="checkbox" data-progress-id="reto-3" class="progress-checkbox w-4 h-4 accent-emerald-500 rounded" />
+                <span class="text-xs font-semibold">Completado</span>
+              </label>
+            </div>
+            <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1.5 list-disc pl-5 mb-4">
+              <li>Crear <code>ControlFraude</code> con <code>registrarFallo(usuarioId)</code> y <code>estaBloqueado(usuarioId)</code>.</li>
+              <li>Al acumular <strong>3 fallos</strong>, bloquear al usuario durante <strong>15 minutos</strong>. Tras 15 minutos, desbloquear automáticamente.</li>
+            </ul>
+            <details class="group bg-slate-50 dark:bg-slate-950/60 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-800">
+              <summary class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 cursor-pointer select-none">Ver pista de testing</summary>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
+                Usa <code>vi.useFakeTimers()</code>, provoca 3 fallos, avanza <code>14 * 60 * 1000</code> ms (sigue bloqueado) y luego avanza <code>61 * 1000</code> ms (ya desbloqueado). Restaura con <code>vi.useRealTimers()</code>.
+              </p>
+            </details>
+          </div>
+
+          <!-- Reto 4 -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs" data-searchable="Reto 4 Repositorio Generico Memoria Generics Partial Omit">
+            <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+              <div>
+                <span class="px-2.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold">Reto 4 • Generics + Utility Types</span>
+                <h3 class="font-bold text-lg mt-1">Repositorio Genérico en Memoria</h3>
+              </div>
+              <label class="inline-flex items-center gap-2 cursor-pointer px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500/10 transition select-none">
+                <input type="checkbox" data-progress-id="reto-4" class="progress-checkbox w-4 h-4 accent-emerald-500 rounded" />
+                <span class="text-xs font-semibold">Completado</span>
+              </label>
+            </div>
+            <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1.5 list-disc pl-5 mb-4">
+              <li>Crear <code>RepositorioMemoria&lt;T extends { id: string }&gt;</code> con <code>guardar</code>, <code>buscarPorId</code>, <code>listarTodos</code>, <code>actualizar</code> y <code>eliminar</code>.</li>
+              <li><code>actualizar(id, cambios: Partial&lt;Omit&lt;T, "id"&gt;&gt;)</code> debe impedir mutar el <code>id</code> y lanzar error si no existe.</li>
+            </ul>
+            <details class="group bg-slate-50 dark:bg-slate-950/60 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-800">
+              <summary class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 cursor-pointer select-none">Ver pista de arquitectura</summary>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
+                Usa un <code>Map&lt;string, T&gt;</code> interno y guarda copias superficiales (<code>{ ...entidad }</code>) para evitar mutaciones externas accidentales.
+              </p>
+            </details>
+          </div>
+
+          <!-- Reto 5 -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs" data-searchable="Reto 5 Promocion 3x2 TDD Red Green Refactor">
+            <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+              <div>
+                <span class="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold">Reto 5 • TDD Puro (Red → Green → Refactor)</span>
+                <h3 class="font-bold text-lg mt-1">Promoción "3x2" en Carrito</h3>
+              </div>
+              <label class="inline-flex items-center gap-2 cursor-pointer px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500/10 transition select-none">
+                <input type="checkbox" data-progress-id="reto-5" class="progress-checkbox w-4 h-4 accent-emerald-500 rounded" />
+                <span class="text-xs font-semibold">Completado</span>
+              </label>
+            </div>
+            <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1.5 list-disc pl-5 mb-4">
+              <li>Añadir variante <code>{ tipo: "3x2"; codigo: string; expiraEl: Date }</code> a <code>CuponDescuento</code>.</li>
+              <li>Por cada 3 unidades de un mismo producto, cobrar solo 2 (ej. 3 uds → paga 2; 4 uds → paga 3; 6 uds → paga 4).</li>
+              <li><strong>Obligatorio:</strong> Escribir primero todos los tests y verlos fallar (Red) antes de tocar <code>calculadoraPrecios.ts</code>.</li>
+            </ul>
+            <details class="group bg-slate-50 dark:bg-slate-950/60 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-800">
+              <summary class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 cursor-pointer select-none">Ver fórmula matemática</summary>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
+                <code>const unidadesGratis = Math.floor(item.cantidad / 3);</code> y <code>const unidadesACobrar = item.cantidad - unidadesGratis;</code>.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- PARTE VII: CHECKLIST FINAL DE CALIDAD ("DEFINITION OF DONE")          -->
+      <!-- ===================================================================== -->
+      <section id="part-7" class="manual-section hidden space-y-6 animate-section">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">Parte VII</span>
+          <h2 class="text-2xl font-bold mt-1">Checklist Final de Calidad ("Definition of Done")</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Verifica estos 6 puntos antes de dar por cerrada cualquier Pull Request o tarea en producción.</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-3" data-searchable="Checklist Definition of Done any ts-ignore aserciones mocks typecheck coverage">
+          <label class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/70 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
+            <input type="checkbox" data-progress-id="dod-1" class="progress-checkbox mt-0.5 w-4 h-4 accent-indigo-600 rounded shrink-0" />
+            <div>
+              <span class="font-bold text-sm block">1. Cero <code>any</code> y cero <code>@ts-ignore</code></span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Todo dato externo (APIs, JSON, errores en catch) entra como <code>unknown</code> y se valida explícitamente.</span>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/70 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
+            <input type="checkbox" data-progress-id="dod-2" class="progress-checkbox mt-0.5 w-4 h-4 accent-indigo-600 rounded shrink-0" />
+            <div>
+              <span class="font-bold text-sm block">2. Sin aserciones no nulas peligrosas (<code>!</code>)</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">No usar <code>usuario!.nombre</code>; utilizar guards o encadenamiento opcional <code>?.</code>.</span>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/70 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
+            <input type="checkbox" data-progress-id="dod-3" class="progress-checkbox mt-0.5 w-4 h-4 accent-indigo-600 rounded shrink-0" />
+            <div>
+              <span class="font-bold text-sm block">3. Dependencias abstraídas tras interfaces</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Bases de datos, pasarelas y servicios externos se inyectan mediante contratos <code>interface</code> para facilitar los mocks.</span>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/70 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
+            <input type="checkbox" data-progress-id="dod-4" class="progress-checkbox mt-0.5 w-4 h-4 accent-indigo-600 rounded shrink-0" />
+            <div>
+              <span class="font-bold text-sm block">4. Tests 100% independientes y deterministas</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Limpieza garantizada con <code>vi.clearAllMocks()</code> y <code>vi.useRealTimers()</code> en los hooks de ciclo de vida.</span>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/70 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
+            <input type="checkbox" data-progress-id="dod-5" class="progress-checkbox mt-0.5 w-4 h-4 accent-indigo-600 rounded shrink-0" />
+            <div>
+              <span class="font-bold text-sm block">5. Typecheck en verde (<code>npm run typecheck</code>)</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">El compilador termina con 0 errores tanto en <code>src/</code> como en <code>tests/</code>.</span>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/70 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
+            <input type="checkbox" data-progress-id="dod-6" class="progress-checkbox mt-0.5 w-4 h-4 accent-indigo-600 rounded shrink-0" />
+            <div>
+              <span class="font-bold text-sm block">6. Cobertura de ramas revisada (<code>npm run test:coverage</code>)</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Se han probado caminos felices, casos borde y manejo de errores.</span>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Navegación inferior Anterior / Siguiente entre módulos -->
+      <div id="bottom-pagination" class="mt-10 pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+        <button id="prev-part-btn" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition flex items-center gap-2">
+          <span>←</span>
+          <span>Módulo Anterior</span>
+        </button>
+        <span id="current-part-indicator" class="text-xs font-mono text-slate-500">Parte I de VII</span>
+        <button id="next-part-btn" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 disabled:pointer-events-none transition flex items-center gap-2 shadow-md shadow-indigo-600/20">
+          <span>Siguiente Módulo</span>
+          <span>→</span>
+        </button>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // =========================================================================
+      // 1. UTILIDAD DE NOTIFICACIONES TOAST Y COPIADO AL PORTAPAPELES
+      // =========================================================================
+      const toastContainer = document.getElementById("toast-container");
+
+      function showToast(message, type = "success") {
+        const toast = document.createElement("div");
+        const bgClass = type === "success"
+          ? "bg-slate-900 text-white border-emerald-500/40"
+          : "bg-slate-900 text-white border-indigo-500/40";
+        toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border ${bgClass} shadow-xl text-xs font-medium transform transition-all duration-200 translate-y-2 opacity-0`;
+        toast.innerHTML = `
+          <span class="w-2 h-2 rounded-full ${type === "success" ? "bg-emerald-400" : "bg-indigo-400"}"></span>
+          <span>${message}</span>
+        `;
+        toastContainer.appendChild(toast);
+
+        requestAnimationFrame(() => {
+          toast.classList.remove("translate-y-2", "opacity-0");
+        });
+
+        setTimeout(() => {
+          toast.classList.add("translate-y-2", "opacity-0");
+          setTimeout(() => toast.remove(), 220);
+        }, 2400);
+      }
+
+      // Copia segura compatible con iframes usando document.execCommand('copy')
+      function copyTextToClipboard(text) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          const ok = document.execCommand("copy");
+          if (ok) {
+            showToast("Código copiado al portapapeles");
+          } else {
+            showToast("No se pudo copiar automáticamente", "info");
+          }
+        } catch (err) {
+          showToast("Error al copiar al portapapeles", "info");
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      }
+
+      // =========================================================================
+      // 2. RESALTADO DE SINTAXIS SEGURO (TOKENIZADOR DE UNA SOLA PASADA) Y BOTÓN COPIAR
+      // =========================================================================
+      function highlightSyntax(rawCode, lang) {
+        if (lang === "text" || lang === "bash") return rawCode;
+
+        // Tokenizer regex de una pasada sobre código ya escapado (&lt;, &gt;, &amp;)
+        const tokenRegex = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|\b(import|export|from|type|interface|const|let|var|function|return|if|else|switch|case|default|for|of|in|while|try|catch|throw|new|class|constructor|private|public|readonly|async|await|extends|implements|satisfies|asserts|is|typeof|keyof|infer|as|void|never|unknown|any|boolean|string|number|true|false|null|undefined)\b|\b(describe|it|expect|vi|beforeEach|afterEach|Promise|Date|Error|Record|Partial|Omit|Pick|Readonly|Math|console|Map)\b|\b(\d+(?:\.\d+)?)\b/g;
+
+        return rawCode.replace(tokenRegex, (match, comment, str, kw, builtin, num) => {
+          if (comment) return `<span class="tok-comment">${comment}</span>`;
+          if (str) return `<span class="tok-string">${str}</span>`;
+          if (kw) return `<span class="tok-keyword">${kw}</span>`;
+          if (builtin) return `<span class="tok-type">${builtin}</span>`;
+          if (num) return `<span class="tok-number">${num}</span>`;
+          return match;
+        });
+      }
+
+      document.querySelectorAll(".code-wrapper").forEach((wrapper) => {
+        const lang = wrapper.getAttribute("data-lang") || "typescript";
+        const pre = wrapper.querySelector("pre");
+        const codeEl = wrapper.querySelector("code");
+        if (!pre || !codeEl) return;
+
+        const plainText = codeEl.textContent || "";
+        const escapedHtml = codeEl.innerHTML;
+        codeEl.innerHTML = highlightSyntax(escapedHtml, lang);
+
+        wrapper.classList.add("relative", "group");
+        pre.className = "bg-slate-950 text-slate-100 rounded-xl p-4 pr-20 font-mono text-xs sm:text-[13px] overflow-x-auto border border-slate-800 leading-relaxed";
+
+        const copyBtn = document.createElement("button");
+        copyBtn.type = "button";
+        copyBtn.textContent = "Copiar";
+        copyBtn.className = "absolute top-2.5 right-2.5 px-2.5 py-1.5 rounded-lg text-[11px] font-sans font-semibold bg-slate-800/90 hover:bg-indigo-600 text-slate-200 hover:text-white border border-slate-700 transition opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100";
+        copyBtn.addEventListener("click", () => copyTextToClipboard(plainText));
+
+        wrapper.appendChild(copyBtn);
+      });
+
+      // =========================================================================
+      // 3. NAVEGACIÓN ENTRE MÓDULOS Y MODO "VER TODO"
+      // =========================================================================
+      const partIds = ["part-1", "part-2", "part-3", "part-4", "part-5", "part-6", "part-7"];
+      const partLabels = [
+        "Parte I de VII",
+        "Parte II de VII",
+        "Parte III de VII",
+        "Parte IV de VII",
+        "Parte V de VII",
+        "Parte VI de VII",
+        "Parte VII de VII"
+      ];
+      let currentPartIndex = 0;
+      let showAllMode = false;
+
+      const navButtons = document.querySelectorAll(".nav-btn");
+      const sections = document.querySelectorAll(".manual-section");
+      const prevBtn = document.getElementById("prev-part-btn");
+      const nextBtn = document.getElementById("next-part-btn");
+      const partIndicator = document.getElementById("current-part-indicator");
+      const bottomPagination = document.getElementById("bottom-pagination");
+      const toggleAllBtn = document.getElementById("toggle-all-view");
+      const toggleAllLabel = document.getElementById("toggle-all-label");
+
+      function updateNavStyles(activeId) {
+        navButtons.forEach((btn) => {
+          const isTarget = btn.getAttribute("data-target") === activeId && !showAllMode;
+          if (isTarget) {
+            btn.classList.add("bg-indigo-50", "dark:bg-indigo-500/15", "text-indigo-700", "dark:text-indigo-300", "font-semibold");
+            btn.classList.remove("text-slate-600", "dark:text-slate-400", "hover:bg-slate-100", "dark:hover:bg-slate-800");
+          } else {
+            btn.classList.remove("bg-indigo-50", "dark:bg-indigo-500/15", "text-indigo-700", "dark:text-indigo-300", "font-semibold");
+            btn.classList.add("text-slate-600", "dark:text-slate-400", "hover:bg-slate-100", "dark:hover:bg-slate-800");
+          }
+        });
+      }
+
+      function navigateToPart(partId, scrollTop = true) {
+        const idx = partIds.indexOf(partId);
+        if (idx === -1) return;
+        currentPartIndex = idx;
+
+        if (showAllMode) {
+          updateNavStyles(partId);
+          const el = document.getElementById(partId);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+
+        sections.forEach((sec) => {
+          if (sec.id === partId) {
+            sec.classList.remove("hidden");
+          } else {
+            sec.classList.add("hidden");
+          }
+        });
+
+        updateNavStyles(partId);
+        prevBtn.disabled = currentPartIndex === 0;
+        nextBtn.disabled = currentPartIndex === partIds.length - 1;
+        partIndicator.textContent = partLabels[currentPartIndex];
+
+        if (scrollTop) {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }
+
+      navButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = btn.getAttribute("data-target");
+          closeMobileSidebar();
+          navigateToPart(target);
+        });
+      });
+
+      prevBtn.addEventListener("click", () => {
+        if (currentPartIndex > 0) {
+          navigateToPart(partIds[currentPartIndex - 1]);
+        }
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (currentPartIndex < partIds.length - 1) {
+          navigateToPart(partIds[currentPartIndex + 1]);
+        }
+      });
+
+      toggleAllBtn.addEventListener("click", () => {
+        showAllMode = !showAllMode;
+        if (showAllMode) {
+          sections.forEach((sec) => sec.classList.remove("hidden"));
+          bottomPagination.classList.add("hidden");
+          toggleAllLabel.textContent = "Volver a vista por módulos";
+          updateNavStyles("");
+          showToast("Mostrando todo el manual en una sola vista", "info");
+        } else {
+          bottomPagination.classList.remove("hidden");
+          toggleAllLabel.textContent = "Ver todo en una página";
+          navigateToPart(partIds[currentPartIndex]);
+        }
+        closeMobileSidebar();
+      });
+
+      // Inicializar navegación en Parte I
+      navigateToPart("part-1", false);
+
+      // =========================================================================
+      // 4. MENÚ MÓVIL Y CAMBIO DE TEMA (DARK / LIGHT)
+      // =========================================================================
+      const sidebar = document.getElementById("sidebar");
+      const backdrop = document.getElementById("sidebar-backdrop");
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+
+      function openMobileSidebar() {
+        sidebar.classList.remove("-translate-x-full");
+        backdrop.classList.remove("hidden");
+      }
+
+      function closeMobileSidebar() {
+        sidebar.classList.add("-translate-x-full");
+        backdrop.classList.add("hidden");
+      }
+
+      mobileMenuBtn.addEventListener("click", openMobileSidebar);
+      backdrop.addEventListener("click", closeMobileSidebar);
+
+      function toggleTheme() {
+        document.documentElement.classList.toggle("dark");
+      }
+
+      document.getElementById("theme-toggle-desktop").addEventListener("click", toggleTheme);
+      document.getElementById("theme-toggle-mobile").addEventListener("click", toggleTheme);
+
+      // =========================================================================
+      // 5. PESTAÑAS DE ARCHIVOS DE CONFIGURACIÓN (PARTE II) E IDE (PARTE V)
+      // =========================================================================
+      document.querySelectorAll(".cfg-tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = btn.getAttribute("data-cfg");
+          document.querySelectorAll(".cfg-tab-btn").forEach((b) => {
+            b.className = "cfg-tab-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300";
+          });
+          btn.className = "cfg-tab-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-indigo-600 text-white";
+
+          document.querySelectorAll(".cfg-panel").forEach((panel) => {
+            panel.classList.toggle("hidden", panel.id !== `cfg-${target}`);
+          });
+        });
+      });
+
+      document.querySelectorAll(".ide-tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = btn.getAttribute("data-file");
+          document.querySelectorAll(".ide-tab-btn").forEach((b) => {
+            b.className = "ide-tab-btn px-3.5 py-2 rounded-t-xl text-xs font-mono font-medium text-slate-400 hover:text-slate-200 shrink-0";
+          });
+          btn.className = "ide-tab-btn px-3.5 py-2 rounded-t-xl text-xs font-mono font-semibold bg-slate-900 text-cyan-400 border-t border-x border-slate-800 shrink-0";
+
+          document.querySelectorAll(".ide-panel").forEach((panel) => {
+            panel.classList.toggle("hidden", panel.id !== `file-${target}`);
+          });
+        });
+      });
+
+      // =========================================================================
+      // 6. SIMULADOR DE TERMINAL INTERACTIVO (PARTE I)
+      // =========================================================================
+      const simData = {
+        typecheck: {
+          output: `$ npm run typecheck\n> tsc --noEmit\n\n✓ 0 errores de tipos encontrados en src/ y tests/.`,
+          explanation: `<strong>¿Qué comprueba?</strong> Analiza todos los archivos de <code>src/</code> y <code>tests/</code> aplicando las reglas estrictas de <code>tsconfig.json</code> sin generar archivos <code>.js</code>. Si hay un fallo de tipos incluso dentro de un test, indica el archivo y la línea exacta.`
+        },
+        test: {
+          output: `$ npm run test:run\n> vitest run\n\n ✓ tests/calculadoraPrecios.test.ts (8 tests) 14ms\n ✓ tests/procesadorPedidos.test.ts (3 tests) 9ms\n\n Test Files  2 passed (2)\n      Tests  11 passed (11)\n   Duration  312ms`,
+          explanation: `<strong>¿Qué comprueba?</strong> Ejecuta toda la suite de tests unitarios una única vez y sale con código <code>0</code> si todos pasan (ideal antes de hacer <code>git commit</code> o en pipelines CI/CD).`
+        },
+        coverage: {
+          output: `$ npm run test:coverage\n> vitest run --coverage\n\n % Coverage report from v8\n-----------------------|---------|----------|---------|---------|\nFile                   | % Stmts | % Branch | % Funcs | % Lines |\n-----------------------|---------|----------|---------|---------|\nAll files              |     100 |    95.45 |     100 |     100 |\n calculadoraPrecios.ts |     100 |    93.75 |     100 |     100 |\n procesadorPedidos.ts  |     100 |      100 |     100 |     100 |\n-----------------------|---------|----------|---------|---------|`,
+          explanation: `<strong>¿Cómo leer la tabla?</strong> <code>% Branch</code> es la métrica más importante: mide qué porcentaje de caminos <code>if / else</code> y ternarios has probado. Además genera <code>coverage/index.html</code> para ver en rojo las líneas no cubiertas.`
+        },
+        build: {
+          output: `$ npm run build\n> tsc\n\n✓ Compilación completada en dist/ (ES2022 / ESNext).`,
+          explanation: `<strong>¿Qué hace?</strong> Compila el código fuente TypeScript a JavaScript limpio de producción dentro de la carpeta <code>dist/</code>.`
+        }
+      };
+
+      const termOutput = document.getElementById("terminal-output");
+      const termExplanation = document.getElementById("terminal-explanation");
+
+      document.querySelectorAll(".sim-cmd-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const cmd = btn.getAttribute("data-sim-cmd");
+          const info = simData[cmd];
+          if (!info) return;
+
+          document.querySelectorAll(".sim-cmd-btn").forEach((b) => {
+            b.classList.remove("bg-indigo-600", "text-white");
+            b.classList.add("bg-slate-800", "border", "border-slate-700");
+          });
+          btn.classList.remove("bg-slate-800", "border", "border-slate-700");
+          btn.classList.add("bg-indigo-600", "text-white");
+
+          termOutput.textContent = info.output;
+          termExplanation.innerHTML = info.explanation;
+        });
+      });
+
+      // =========================================================================
+      // 7. BUSCADOR INSTANTÁNEO POR CONCEPTOS
+      // =========================================================================
+      const searchInput = document.getElementById("search-input");
+      const searchResults = document.getElementById("search-results");
+      const searchableBlocks = Array.from(document.querySelectorAll("[data-searchable]")).map((el) => {
+        const parentSection = el.closest(".manual-section");
+        const heading = el.querySelector("h3, h4")?.textContent?.trim() || "Sección del manual";
+        return {
+          element: el,
+          sectionId: parentSection ? parentSection.id : "part-1",
+          title: heading,
+          keywords: (el.getAttribute("data-searchable") + " " + heading).toLowerCase()
+        };
+      });
+
+      searchInput.addEventListener("input", (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        if (query.length < 2) {
+          searchResults.classList.add("hidden");
+          searchResults.innerHTML = "";
+          return;
+        }
+
+        const matches = searchableBlocks.filter((b) => b.keywords.includes(query)).slice(0, 6);
+        if (matches.length === 0) {
+          searchResults.innerHTML = `<div class="p-3 text-xs text-slate-400">Sin resultados para "${query}"</div>`;
+          searchResults.classList.remove("hidden");
+          return;
+        }
+
+        searchResults.innerHTML = matches.map((m, idx) => `
+          <button type="button" data-match-idx="${idx}" class="search-hit-btn w-full text-left px-3 py-2.5 text-xs hover:bg-indigo-50 dark:hover:bg-slate-800 transition flex items-center justify-between gap-2">
+            <span class="font-medium text-slate-700 dark:text-slate-200 truncate">${m.title}</span>
+            <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 shrink-0">${m.sectionId.replace("part-", "P.")}</span>
+          </button>
+        `).join("");
+        searchResults.classList.remove("hidden");
+
+        searchResults.querySelectorAll(".search-hit-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const match = matches[Number(btn.getAttribute("data-match-idx"))];
+            if (!match) return;
+            searchResults.classList.add("hidden");
+            searchInput.value = "";
+            closeMobileSidebar();
+            navigateToPart(match.sectionId, false);
+            setTimeout(() => {
+              match.element.scrollIntoView({ behavior: "smooth", block: "center" });
+              match.element.classList.add("search-pulse");
+              setTimeout(() => match.element.classList.remove("search-pulse"), 1800);
+            }, 80);
+          });
+        });
+      });
+
+      // =========================================================================
+      // 8. PERSISTENCIA DE PROGRESO (5 RETOS + 6 ITEMS CHECKLIST = 11 HITOS)
+      // =========================================================================
+      const STORAGE_KEY = "ts_vitest_manual_progress_v1";
+      const checkboxes = document.querySelectorAll(".progress-checkbox");
+      const progressPct = document.getElementById("sidebar-progress-pct");
+      const progressBar = document.getElementById("sidebar-progress-bar");
+      const progressDetail = document.getElementById("sidebar-progress-detail");
+      const mobileProgressText = document.getElementById("mobile-progress-text");
+
+      function loadProgressState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : {};
+        } catch {
+          return {};
+        }
+      }
+
+      function saveProgressState(state) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch {
+          // Ignorar si el sandbox bloquea localStorage
+        }
+      }
+
+      let progressState = loadProgressState();
+
+      function refreshProgressUI() {
+        const total = checkboxes.length;
+        let completed = 0;
+
+        checkboxes.forEach((cb) => {
+          const id = cb.getAttribute("data-progress-id");
+          cb.checked = Boolean(progressState[id]);
+          if (cb.checked) completed++;
+        });
+
+        const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+        progressPct.textContent = `${pct}%`;
+        progressBar.style.width = `${pct}%`;
+        progressDetail.textContent = `${completed}/${total} hitos completados`;
+        mobileProgressText.textContent = `Progreso: ${pct}%`;
+      }
+
+      checkboxes.forEach((cb) => {
+        cb.addEventListener("change", () => {
+          const id = cb.getAttribute("data-progress-id");
+          progressState[id] = cb.checked;
+          saveProgressState(progressState);
+          refreshProgressUI();
+          if (cb.checked) {
+            showToast("¡Hito completado y guardado!");
+          }
+        });
+      });
+
+      refreshProgressUI();
+
+      // Modal personalizado para reiniciar progreso
+      const confirmModal = document.getElementById("confirm-modal");
+      document.getElementById("reset-progress-btn").addEventListener("click", () => {
+        confirmModal.classList.remove("hidden");
+        confirmModal.classList.add("flex");
+      });
+
+      document.getElementById("modal-cancel-btn").addEventListener("click", () => {
+        confirmModal.classList.add("hidden");
+        confirmModal.classList.remove("flex");
+      });
+
+      document.getElementById("modal-confirm-btn").addEventListener("click", () => {
+        progressState = {};
+        saveProgressState(progressState);
+        refreshProgressUI();
+        confirmModal.classList.add("hidden");
+        confirmModal.classList.remove("flex");
+        showToast("Progreso reiniciado a 0%", "info");
+      });
+    });
+  </script>
+</body>
+</html>
