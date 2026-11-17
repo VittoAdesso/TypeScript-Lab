@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   NavigationEnd,
@@ -44,23 +44,25 @@ export class MainShellComponent {
 
   readonly isMobileSidebarOpen = signal<boolean>(false);
   readonly isResetModalOpen = signal<boolean>(false);
-  readonly lastModuleRoute = signal<string>(MODULES_LIST[0]!.route);
-
   private readonly navEndSignal = toSignal(
     this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)),
     { initialValue: null }
   );
 
-  readonly isFullManualView = computed<boolean>(() => {
+  private readonly currentUrl = computed<string>(() => {
     const evt = this.navEndSignal();
-    const url = evt ? evt.urlAfterRedirects : this.router.url;
-    if (!url.includes('vista-completa')) {
+    return evt ? evt.urlAfterRedirects : this.router.url;
+  });
+
+  readonly isFullManualView = computed<boolean>(() => this.currentUrl().includes('vista-completa'));
+
+  /** Última ruta de módulo visitada (se conserva al entrar en la vista completa). */
+  readonly lastModuleRoute = linkedSignal<string, string>({
+    source: this.currentUrl,
+    computation: (url, previous) => {
       const matched = MODULES_LIST.find((m) => url.includes(m.slug));
-      if (matched) {
-        this.lastModuleRoute.set(matched.route);
-      }
-    }
-    return url.includes('vista-completa');
+      return matched?.route ?? previous?.value ?? MODULES_LIST[0]!.route;
+    },
   });
 
   openMobileSidebar(): void {
