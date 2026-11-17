@@ -1,0 +1,70 @@
+# ==============================================================================
+# DEPENDENCIAS Y COMPILACIÓN
+# ==============================================================================
+/node_modules
+/dist
+/tmp
+/out-tsc
+/bazel-out
+/.angular/cache
+.sass-cache/
+
+# ==============================================================================
+# VARIABLES DE ENTORNO, CLAVES PRIVADAS Y SECRETOS (NUNCA SUBIR A GIT)
+# ==============================================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.p12
+secrets/
+credentials.json
+
+# ==============================================================================
+# CONFIGURACIÓN DE AGENTES DE IA Y REGLAS LOCALES (GEMINI, CLAUDE, CURSOR, ETC.)
+# ==============================================================================
+GEMINI.md
+CLAUDE.md
+AGENTS.md
+.gemini/
+.claude/
+.cursor/
+.windsurf/
+.antigravity/
+
+# ==============================================================================
+# COBERTURA Y REPORTES DE TESTS UNITARIOS
+# ==============================================================================
+/coverage
+/reports
+*.lcov
+.nyc_output
+
+# ==============================================================================
+# IDEs, EDITORES Y SISTEMA OPERATIVO
+# ==============================================================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# ==============================================================================
+# LOGS
+# ==============================================================================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*

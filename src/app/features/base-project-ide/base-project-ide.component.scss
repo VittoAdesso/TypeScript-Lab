@@ -1,0 +1,12 @@
+@use 'mixins' as m;
+
+.base-project {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__header {
+    @include m.section-header;
+    margin-bottom: 0;
+  }
+}

@@ -1,0 +1,91 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.arch-aliases {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  &__header {
+    @include m.section-header;
+    margin-bottom: 0;
+  }
+
+  &__card {
+    @include m.surface-card(1.25rem);
+
+    h3 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-heading);
+    }
+
+    &--between {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+
+    @include m.respond-lg {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  &__intro {
+    margin: 0 0 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.625;
+  }
+
+  &__rules {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__rule-box {
+    padding: 0.875rem;
+    border-radius: v.$radius-lg;
+    border: 1px solid transparent;
+
+    &--indigo {
+      background-color: var(--brand-accent-bg);
+      border-color: rgba(99, 102, 241, 0.22);
+
+      .arch-aliases__rule-title {
+        color: var(--brand-accent-text);
+      }
+    }
+
+    &--emerald {
+      background-color: var(--emerald-bg);
+      border-color: rgba(16, 185, 129, 0.22);
+
+      .arch-aliases__rule-title {
+        color: var(--emerald-text);
+      }
+    }
+  }
+
+  &__rule-title {
+    display: block;
+    font-family: v.$font-mono;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  &__rule-desc {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+}

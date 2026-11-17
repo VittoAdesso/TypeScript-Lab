@@ -1,0 +1,60 @@
+<section id="part-3" class="ts-guide animate-section">
+  <header class="ts-guide__header">
+    <span class="part-badge">Parte III</span>
+    <h2>Dominio Completo de TypeScript (Base y Nivel Pro)</h2>
+    <p>Desde los fundamentos del sistema de tipos hasta patrones avanzados de nivel arquitecto.</p>
+  </header>
+
+  <!-- Bloque 1: Fundamentos -->
+  <div class="ts-guide__section">
+    <h3 class="ts-guide__group-title">
+      <span class="ts-guide__pill ts-guide__pill--indigo">Nivel Base</span>
+      <span>Fundamentos Esenciales</span>
+    </h3>
+
+    @for (block of baseBlocks; track block.id) {
+      <article [id]="block.id" class="ts-guide__card">
+        <h4 class="ts-guide__card-title" [innerHTML]="block.titleHtml"></h4>
+
+        @if (block.specialTypes) {
+          <div class="ts-guide__special-grid">
+            @for (spec of block.specialTypes; track spec.name) {
+              <div
+                class="ts-guide__special-box"
+                [class.ts-guide__special-box--rose]="spec.theme === 'rose'"
+                [class.ts-guide__special-box--emerald]="spec.theme === 'emerald'"
+                [class.ts-guide__special-box--sky]="spec.theme === 'sky'"
+                [class.ts-guide__special-box--purple]="spec.theme === 'purple'"
+              >
+                <strong>{{ spec.name }}</strong>
+                <span>{{ spec.summary }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <app-code-viewer [code]="block.code" [lang]="block.lang" />
+      </article>
+    }
+  </div>
+
+  <!-- Bloque 2: Nivel Pro -->
+  <div class="ts-guide__section ts-guide__section--pro">
+    <h3 class="ts-guide__group-title">
+      <span class="ts-guide__pill ts-guide__pill--amber">Nivel Pro</span>
+      <span>Patrones Avanzados de TypeScript</span>
+    </h3>
+
+    <div id="ts-pro-grid" class="ts-guide__pro-grid">
+      @for (block of proBlocks; track block.id) {
+        <article [id]="block.id" class="ts-guide__card">
+          <h4 class="ts-guide__card-title" [innerHTML]="block.titleHtml"></h4>
+          @if (block.description) {
+            <p class="ts-guide__card-desc">{{ block.description }}</p>
+          }
+          <app-code-viewer [code]="block.code" [lang]="block.lang" />
+        </article>
+      }
+    </div>
+  </div>
+</section>

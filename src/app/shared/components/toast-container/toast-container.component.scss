@@ -1,0 +1,44 @@
+@use 'variables' as v;
+
+.toast-container {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-radius: v.$radius-lg;
+  background-color: v.$slate-900;
+  color: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.75rem;
+  font-weight: 500;
+  animation: fadeSlideIn 0.2s ease-out forwards;
+
+  &__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: v.$radius-full;
+    background-color: v.$emerald-400;
+    flex-shrink: 0;
+  }
+
+  &--info {
+    border-color: rgba(99, 102, 241, 0.4);
+
+    .toast-item__dot {
+      background-color: v.$indigo-400;
+    }
+  }
+}

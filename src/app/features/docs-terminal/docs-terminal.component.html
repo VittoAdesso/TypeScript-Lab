@@ -1,0 +1,92 @@
+<section id="part-1" class="docs-terminal animate-section">
+  <header class="docs-terminal__header">
+    <span class="part-badge">Parte I</span>
+    <h2>Documentación Oficial y Guía de Ejecución en Terminal</h2>
+    <p>Fuentes primarias verificadas y flujo diario de comprobación profesional.</p>
+  </header>
+
+  <!-- Enlaces Oficiales en Grid -->
+  <div id="search-docs-oficiales" class="docs-terminal__grid">
+    @for (category of docCategories; track category.title) {
+      <article class="docs-terminal__card">
+        <div class="docs-terminal__card-head">
+          <span
+            class="docs-terminal__badge"
+            [class.docs-terminal__badge--blue]="category.badgeTheme === 'blue'"
+            [class.docs-terminal__badge--emerald]="category.badgeTheme === 'emerald'"
+          >
+            {{ category.badge }}
+          </span>
+          <h3>{{ category.title }}</h3>
+        </div>
+
+        <ul class="docs-terminal__link-list">
+          @for (link of category.links; track link.url) {
+            <li>
+              <a
+                [href]="link.url"
+                target="_blank"
+                rel="noopener"
+                class="docs-terminal__link"
+                [class.docs-terminal__link--emerald]="category.badgeTheme === 'emerald' && !link.isAlternative"
+                [class.docs-terminal__link--alt]="link.isAlternative"
+                [class.docs-terminal__link--primary]="link.isPrimary"
+              >
+                {{ link.label }}
+              </a>
+            </li>
+          }
+        </ul>
+      </article>
+    }
+  </div>
+
+  <!-- Simulador Interactivo de Terminal -->
+  <div id="search-simulador-terminal" class="terminal-sim">
+    <div class="terminal-sim__topbar">
+      <div class="terminal-sim__dots">
+        <span class="terminal-sim__dot terminal-sim__dot--rose"></span>
+        <span class="terminal-sim__dot terminal-sim__dot--amber"></span>
+        <span class="terminal-sim__dot terminal-sim__dot--emerald"></span>
+        <span class="terminal-sim__caption">
+          Simulador de Flujo Diario en Terminal — Haz clic para probar cada comando
+        </span>
+      </div>
+    </div>
+
+    <div class="terminal-sim__body">
+      <div class="terminal-sim__buttons">
+        @for (cmd of terminalCommands; track cmd.id) {
+          <button
+            type="button"
+            class="terminal-sim__btn"
+            [class.terminal-sim__btn--active]="selectedCommandId() === cmd.id"
+            [class.terminal-sim__btn--emerald]="selectedCommandId() !== cmd.id && cmd.accentColor === 'emerald'"
+            [class.terminal-sim__btn--cyan]="selectedCommandId() !== cmd.id && cmd.accentColor === 'cyan'"
+            [class.terminal-sim__btn--amber]="selectedCommandId() !== cmd.id && cmd.accentColor === 'amber'"
+            (click)="selectCommand(cmd.id)"
+          >
+            {{ cmd.buttonLabel }}
+          </button>
+        }
+      </div>
+
+      <pre class="terminal-sim__output">{{ activeCommand().output }}</pre>
+
+      <div
+        class="terminal-sim__explanation"
+        [innerHTML]="activeCommand().explanationHtml"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Comandos adicionales útiles -->
+  <div class="docs-terminal__extra-grid">
+    @for (card of extraCards; track card.title) {
+      <div class="docs-terminal__extra-card">
+        <h4>{{ card.title }}</h4>
+        <app-code-viewer [code]="card.command" [lang]="card.lang" />
+      </div>
+    }
+  </div>
+</section>

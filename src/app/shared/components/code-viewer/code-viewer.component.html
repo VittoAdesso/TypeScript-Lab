@@ -1,0 +1,6 @@
+<div class="code-viewer" [attr.data-lang]="lang()">
+  <pre class="code-viewer__pre"><code [innerHTML]="highlightedHtml()"></code></pre>
+  <button type="button" class="code-viewer__copy-btn" (click)="copyCode()">
+    Copiar
+  </button>
+</div>

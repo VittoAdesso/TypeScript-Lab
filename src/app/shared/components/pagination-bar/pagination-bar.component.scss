@@ -1,0 +1,61 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.pagination-bar {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  &__indicator {
+    font-family: v.$font-mono;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  &__btn {
+    padding: 0.625rem 1rem;
+    border-radius: v.$radius-lg;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: v.$font-sans;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background-color v.$transition-fast, opacity v.$transition-fast;
+
+    @include m.respond-sm {
+      font-size: 0.875rem;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    &--prev {
+      background-color: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+
+      &:hover {
+        background-color: var(--bg-surface-muted);
+      }
+    }
+
+    &--next {
+      background-color: v.$indigo-600;
+      color: #ffffff;
+      border: 1px solid transparent;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+
+      &:hover {
+        background-color: v.$indigo-500;
+      }
+    }
+  }
+}

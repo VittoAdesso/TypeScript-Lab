@@ -1,0 +1,49 @@
+@use 'variables' as v;
+
+// ============================================================================
+// CLASES DE RESALTADO DE SINTAXIS TIPO IDE Y ANIMACIONES DE SECCIÓN
+// ============================================================================
+
+.tok-comment {
+  color: #64748b;
+  font-style: italic;
+}
+
+.tok-string {
+  color: #34d399;
+}
+
+.tok-keyword {
+  color: #c084fc;
+  font-weight: 500;
+}
+
+.tok-type {
+  color: #38bdf8;
+}
+
+.tok-number {
+  color: #fbbf24;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-section {
+  animation: fadeSlideIn 0.25s ease-out forwards;
+}
+
+.search-pulse {
+  outline: 2px solid v.$indigo-500;
+  outline-offset: 4px;
+  border-radius: v.$radius-lg;
+  transition: outline 0.3s ease;
+}

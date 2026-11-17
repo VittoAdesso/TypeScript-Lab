@@ -1,0 +1,121 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.tdd-challenges {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__header {
+    @include m.section-header;
+    margin-bottom: 0;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__card {
+    @include m.surface-card(1.25rem);
+  }
+
+  &__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  &__badge {
+    display: inline-block;
+    padding: 0.125rem 0.625rem;
+    border-radius: v.$radius-sm;
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    &--indigo {
+      background-color: var(--brand-accent-bg);
+      color: var(--brand-accent-text);
+    }
+
+    &--amber {
+      background-color: var(--amber-bg);
+      color: var(--amber-text);
+    }
+
+    &--emerald {
+      background-color: var(--emerald-bg);
+      color: var(--emerald-text);
+    }
+  }
+
+  &__title {
+    margin: 0.25rem 0 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-heading);
+  }
+
+  &__check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem 0.875rem;
+    border-radius: v.$radius-lg;
+    background-color: var(--bg-surface-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    user-select: none;
+    transition: background-color v.$transition-fast;
+
+    &:hover {
+      background-color: var(--emerald-bg);
+    }
+  }
+
+  &__checkbox {
+    width: 1rem;
+    height: 1rem;
+    accent-color: v.$emerald-500;
+    border-radius: v.$radius-sm;
+    cursor: pointer;
+  }
+
+  &__criteria {
+    margin: 0 0 1rem;
+    padding-left: 1.25rem;
+    list-style-type: disc;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  &__details {
+    background-color: var(--bg-surface-subtle);
+    border-radius: v.$radius-lg;
+    padding: 0.875rem;
+    border: 1px solid var(--border-subtle);
+
+    summary {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--brand-accent-text);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    p {
+      margin: 0.5rem 0 0;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+  }
+}

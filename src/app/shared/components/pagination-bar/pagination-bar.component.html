@@ -1,0 +1,27 @@
+@if (!isFullManualView()) {
+  <div class="pagination-bar">
+    <button
+      type="button"
+      class="pagination-bar__btn pagination-bar__btn--prev"
+      [disabled]="!prevModule()"
+      (click)="goToPrev()"
+    >
+      <span>←</span>
+      <span>Módulo Anterior</span>
+    </button>
+
+    <span class="pagination-bar__indicator">
+      {{ currentModule()?.partLabel ?? 'Parte I de VII' }}
+    </span>
+
+    <button
+      type="button"
+      class="pagination-bar__btn pagination-bar__btn--next"
+      [disabled]="!nextModule()"
+      (click)="goToNext()"
+    >
+      <span>Siguiente Módulo</span>
+      <span>→</span>
+    </button>
+  </div>
+}

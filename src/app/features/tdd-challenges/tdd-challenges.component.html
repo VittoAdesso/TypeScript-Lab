@@ -1,0 +1,51 @@
+<section id="part-6" class="tdd-challenges animate-section">
+  <header class="tdd-challenges__header">
+    <span class="part-badge part-badge--amber">Parte VI</span>
+    <h2>5 Retos Prácticos para Resolver por Cuenta Propia</h2>
+    <p>
+      Implementa cada reto sobre el proyecto base sin usar <code>any</code> y manteniendo &gt;90% de
+      cobertura. Marca cada reto al completarlo.
+    </p>
+  </header>
+
+  <div class="tdd-challenges__list">
+    @for (challenge of challenges; track challenge.id) {
+      <article [id]="challenge.id" class="tdd-challenges__card">
+        <div class="tdd-challenges__top">
+          <div>
+            <span
+              class="tdd-challenges__badge"
+              [class.tdd-challenges__badge--indigo]="challenge.badgeTheme === 'indigo'"
+              [class.tdd-challenges__badge--amber]="challenge.badgeTheme === 'amber'"
+              [class.tdd-challenges__badge--emerald]="challenge.badgeTheme === 'emerald'"
+            >
+              {{ challenge.badge }}
+            </span>
+            <h3 class="tdd-challenges__title">{{ challenge.title }}</h3>
+          </div>
+
+          <label class="tdd-challenges__check-label">
+            <input
+              type="checkbox"
+              class="tdd-challenges__checkbox"
+              [checked]="progressStore.isCompleted(challenge.id)"
+              (change)="onToggleChallenge(challenge, $event)"
+            />
+            <span>Completado</span>
+          </label>
+        </div>
+
+        <ul class="tdd-challenges__criteria">
+          @for (criterion of challenge.criteriaHtmlList; track criterion) {
+            <li [innerHTML]="criterion"></li>
+          }
+        </ul>
+
+        <details class="tdd-challenges__details">
+          <summary>{{ challenge.hintSummary }}</summary>
+          <p [innerHTML]="challenge.hintContentHtml"></p>
+        </details>
+      </article>
+    }
+  </div>
+</section>

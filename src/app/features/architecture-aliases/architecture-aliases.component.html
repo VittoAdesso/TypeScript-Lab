@@ -1,0 +1,53 @@
+<section id="part-2" class="arch-aliases animate-section">
+  <header class="arch-aliases__header">
+    <span class="part-badge">Parte II</span>
+    <h2>Arquitectura del Proyecto, Archivos y Alias de Rutas</h2>
+    <p>
+      Cómo inicializar el proyecto desde cero y sincronizar alias limpios (<code>&#64;domain/*</code>,
+      <code>&#64;services/*</code>).
+    </p>
+  </header>
+
+  <!-- Comandos de inicialización -->
+  <div id="search-init-proyecto" class="arch-aliases__card">
+    <h3>1. Inicialización desde cero</h3>
+    <app-code-viewer [code]="initSnippet" lang="bash" />
+  </div>
+
+  <!-- Estructura de carpetas + Regla de Alias -->
+  <div id="search-mapa-carpetas-alias" class="arch-aliases__grid">
+    <div class="arch-aliases__card">
+      <h3>2. Mapa de Carpetas</h3>
+      <app-code-viewer [code]="folderTreeSnippet" lang="text" />
+    </div>
+
+    <div class="arch-aliases__card arch-aliases__card--between">
+      <div>
+        <h3>3. Doble Configuración de Alias</h3>
+        <p class="arch-aliases__intro" [innerHTML]="aliasIntroHtml"></p>
+
+        <div class="arch-aliases__rules">
+          @for (rule of aliasRules; track rule.title) {
+            <div
+              class="arch-aliases__rule-box"
+              [class.arch-aliases__rule-box--indigo]="rule.theme === 'indigo'"
+              [class.arch-aliases__rule-box--emerald]="rule.theme === 'emerald'"
+            >
+              <span class="arch-aliases__rule-title">{{ rule.title }}</span>
+              <span class="arch-aliases__rule-desc" [innerHTML]="rule.descriptionHtml"></span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pestañas de archivos de configuración -->
+  <div id="search-archivos-config">
+    <app-file-tabs-ide
+      [tabs]="configTabs"
+      variant="config"
+      headerLabel="Archivos de Configuración Base"
+    />
+  </div>
+</section>

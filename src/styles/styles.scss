@@ -1,0 +1,70 @@
+@use 'variables' as v;
+@use 'themes';
+@use 'mixins' as m;
+@use 'syntax';
+
+// ============================================================================
+// ESTILOS GLOBALES DE LA APLICACIÓN
+// ============================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: v.$font-sans;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: v.$font-sans;
+  line-height: 1.5;
+  transition: background-color v.$transition-base, color v.$transition-base;
+}
+
+::selection {
+  background-color: v.$indigo-500;
+  color: #ffffff;
+}
+
+code,
+pre {
+  font-family: v.$font-mono;
+}
+
+p code,
+li code,
+span code,
+div code:not(pre code) {
+  font-family: v.$font-mono;
+  font-size: 0.82em;
+  background-color: var(--bg-surface-muted);
+  padding: 0.12rem 0.38rem;
+  border-radius: 0.3rem;
+  color: var(--brand-accent-text);
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: v.$radius-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.55);
+}

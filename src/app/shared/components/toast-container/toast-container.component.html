@@ -1,0 +1,12 @@
+<div class="toast-container" aria-live="polite">
+  @for (item of toastService.toasts(); track item.id) {
+    <div
+      class="toast-item"
+      [class.toast-item--success]="item.type === 'success'"
+      [class.toast-item--info]="item.type === 'info'"
+    >
+      <span class="toast-item__dot"></span>
+      <span>{{ item.message }}</span>
+    </div>
+  }
+</div>

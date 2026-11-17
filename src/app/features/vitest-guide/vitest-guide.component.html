@@ -1,0 +1,68 @@
+<section id="part-4" class="vitest-guide animate-section">
+  <header class="vitest-guide__header">
+    <span class="part-badge">Parte IV</span>
+    <h2>Dominio Completo de Tests Unitarios con Vitest</h2>
+    <p>Principios FIRST, estructura AAA, matchers, tests parametrizados, mocks, spies y Fake Timers.</p>
+  </header>
+
+  <!-- Principios FIRST & AAA -->
+  <div id="vitest-first-aaa" class="vitest-guide__grid-two">
+    <article class="vitest-guide__card">
+      <h3 class="vitest-guide__subtitle vitest-guide__subtitle--indigo">Principios F.I.R.S.T.</h3>
+      <ul class="vitest-guide__list">
+        @for (item of firstPrinciples; track item.term) {
+          <li>
+            <strong>{{ item.term }}</strong>
+            <span> {{ item.definitionHtml }}</span>
+          </li>
+        }
+      </ul>
+    </article>
+
+    <article class="vitest-guide__card">
+      <h3 class="vitest-guide__subtitle vitest-guide__subtitle--emerald">Anatomía A.A.A.</h3>
+      <ul class="vitest-guide__list">
+        @for (item of aaaAnatomy; track item.term) {
+          <li>
+            <strong>{{ item.term }}</strong>
+            <span [innerHTML]="' ' + item.definitionHtml"></span>
+          </li>
+        }
+      </ul>
+    </article>
+  </div>
+
+  <!-- Matchers e it.each -->
+  <article id="vitest-matchers-each" class="vitest-guide__card vitest-guide__card--spaced">
+    <h3 class="vitest-guide__card-title">
+      Matchers Esenciales y Tests Parametrizados (<code>it.each</code>)
+    </h3>
+    <app-code-viewer [code]="matchersSnippet" lang="typescript" />
+  </article>
+
+  <!-- Testing Pro: Mocks vs Spies y Fake Timers -->
+  <div id="vitest-mocks-timers" class="vitest-guide__grid-large">
+    <article class="vitest-guide__card vitest-guide__card--spaced">
+      <h3 class="vitest-guide__card-title">
+        <code>vi.fn()</code> vs <code>vi.spyOn()</code> vs <code>vi.mock()</code>
+      </h3>
+      <ul class="vitest-guide__list vitest-guide__list--spaced">
+        @for (item of mocksComparison; track item.term) {
+          <li>
+            <strong [innerHTML]="item.term"></strong>
+            <span> {{ item.definitionHtml }}</span>
+          </li>
+        }
+      </ul>
+      <app-code-viewer [code]="spyOnSnippet" lang="typescript" />
+    </article>
+
+    <article class="vitest-guide__card vitest-guide__card--spaced">
+      <h3 class="vitest-guide__card-title">
+        Control del Tiempo (<code>Fake Timers</code>)
+      </h3>
+      <p class="vitest-guide__text">{{ fakeTimersDescription }}</p>
+      <app-code-viewer [code]="fakeTimersSnippet" lang="typescript" />
+    </article>
+  </div>
+</section>

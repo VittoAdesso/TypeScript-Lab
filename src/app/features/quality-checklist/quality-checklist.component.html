@@ -1,0 +1,24 @@
+<section id="part-7" class="quality-checklist animate-section">
+  <header class="quality-checklist__header">
+    <span class="part-badge part-badge--cyan">Parte VII</span>
+    <h2>Checklist Final de Calidad ("Definition of Done")</h2>
+    <p>Verifica estos 6 puntos antes de dar por cerrada cualquier Pull Request o tarea en producción.</p>
+  </header>
+
+  <div id="checklist-dod-card" class="quality-checklist__card">
+    @for (item of checklistItems; track item.id) {
+      <label class="quality-checklist__item">
+        <input
+          type="checkbox"
+          class="quality-checklist__checkbox"
+          [checked]="progressStore.isCompleted(item.id)"
+          (change)="onToggleItem(item, $event)"
+        />
+        <div class="quality-checklist__content">
+          <span class="quality-checklist__title" [innerHTML]="item.titleHtml"></span>
+          <span class="quality-checklist__desc" [innerHTML]="item.descriptionHtml"></span>
+        </div>
+      </label>
+    }
+  </div>
+</section>

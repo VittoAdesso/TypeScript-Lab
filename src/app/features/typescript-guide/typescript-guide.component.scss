@@ -1,0 +1,136 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.ts-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  &__header {
+    @include m.section-header;
+    margin-bottom: 0;
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    &--pro {
+      padding-top: 1rem;
+    }
+  }
+
+  &__group-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-heading);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__pill {
+    padding: 0.125rem 0.625rem;
+    border-radius: v.$radius-sm;
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    &--indigo {
+      background-color: var(--brand-accent-bg);
+      color: var(--brand-accent-text);
+    }
+
+    &--amber {
+      background-color: var(--amber-bg);
+      color: var(--amber-text);
+    }
+  }
+
+  &__card {
+    @include m.surface-card(1.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__card-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-heading);
+  }
+
+  &__card-desc {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  &__special-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.625rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+
+    @include m.respond-sm {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  &__special-box {
+    padding: 0.625rem;
+    border-radius: v.$radius-lg;
+    border: 1px solid transparent;
+
+    strong {
+      display: block;
+      font-family: v.$font-mono;
+      margin-bottom: 0.15rem;
+    }
+
+    &--rose {
+      background-color: var(--rose-bg);
+      border-color: rgba(244, 63, 94, 0.22);
+      strong {
+        color: var(--rose-text);
+      }
+    }
+
+    &--emerald {
+      background-color: var(--emerald-bg);
+      border-color: rgba(16, 185, 129, 0.22);
+      strong {
+        color: var(--emerald-text);
+      }
+    }
+
+    &--sky {
+      background-color: var(--sky-bg);
+      border-color: rgba(56, 189, 248, 0.22);
+      strong {
+        color: var(--sky-text);
+      }
+    }
+
+    &--purple {
+      background-color: var(--purple-bg);
+      border-color: rgba(192, 132, 252, 0.22);
+      strong {
+        color: var(--purple-text);
+      }
+    }
+  }
+
+  &__pro-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+
+    @include m.respond-lg {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}

@@ -1,0 +1,79 @@
+@use 'variables' as v;
+
+// ============================================================================
+// VARIABLES CSS DINÁMICAS PARA MODO CLARO Y MODO OSCURO (DEFAULT: DARK)
+// ============================================================================
+
+:root {
+  --bg-app: #{v.$slate-50};
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #{v.$slate-100};
+  --bg-surface-subtle: #{v.$slate-50};
+  --bg-header-glass: rgba(255, 255, 255, 0.9);
+  --bg-code: #{v.$slate-950};
+  --text-primary: #{v.$slate-800};
+  --text-heading: #{v.$slate-900};
+  --text-secondary: #{v.$slate-600};
+  --text-muted: #{v.$slate-500};
+  --border-color: #{v.$slate-200};
+  --border-subtle: rgba(226, 232, 240, 0.8);
+  --brand-primary: #{v.$indigo-600};
+  --brand-primary-hover: #{v.$indigo-500};
+  --brand-accent-text: #{v.$indigo-600};
+  --brand-accent-bg: rgba(99, 102, 241, 0.1);
+  --nav-active-bg: #{v.$indigo-50};
+  --nav-active-text: #{v.$indigo-700};
+  --emerald-text: #{v.$emerald-600};
+  --emerald-bg: rgba(16, 185, 129, 0.1);
+  --amber-text: #{v.$amber-600};
+  --amber-bg: rgba(245, 158, 11, 0.1);
+  --cyan-text: #{v.$cyan-600};
+  --cyan-bg: rgba(6, 182, 212, 0.1);
+  --rose-text: #{v.$rose-600};
+  --rose-bg: rgba(244, 63, 94, 0.1);
+  --sky-text: #{v.$sky-600};
+  --sky-bg: rgba(14, 165, 233, 0.1);
+  --purple-text: #{v.$purple-600};
+  --purple-bg: rgba(168, 85, 247, 0.1);
+  --blue-text: #{v.$blue-600};
+  --blue-bg: rgba(59, 130, 246, 0.1);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.12);
+}
+
+html.dark {
+  --bg-app: #{v.$slate-950};
+  --bg-surface: #{v.$slate-900};
+  --bg-surface-muted: #{v.$slate-800};
+  --bg-surface-subtle: rgba(2, 6, 23, 0.6);
+  --bg-header-glass: rgba(15, 23, 42, 0.9);
+  --bg-code: #{v.$slate-950};
+  --text-primary: #{v.$slate-100};
+  --text-heading: #ffffff;
+  --text-secondary: #{v.$slate-300};
+  --text-muted: #{v.$slate-400};
+  --border-color: #{v.$slate-800};
+  --border-subtle: rgba(30, 41, 59, 0.85);
+  --brand-primary: #{v.$indigo-600};
+  --brand-primary-hover: #{v.$indigo-500};
+  --brand-accent-text: #{v.$indigo-400};
+  --brand-accent-bg: rgba(99, 102, 241, 0.14);
+  --nav-active-bg: rgba(99, 102, 241, 0.15);
+  --nav-active-text: #{v.$indigo-300};
+  --emerald-text: #{v.$emerald-400};
+  --emerald-bg: rgba(16, 185, 129, 0.12);
+  --amber-text: #{v.$amber-400};
+  --amber-bg: rgba(245, 158, 11, 0.12);
+  --cyan-text: #{v.$cyan-400};
+  --cyan-bg: rgba(6, 182, 212, 0.12);
+  --rose-text: #{v.$rose-400};
+  --rose-bg: rgba(244, 63, 94, 0.12);
+  --sky-text: #{v.$sky-400};
+  --sky-bg: rgba(56, 189, 248, 0.12);
+  --purple-text: #{v.$purple-400};
+  --purple-bg: rgba(192, 132, 252, 0.12);
+  --blue-text: #{v.$blue-400};
+  --blue-bg: rgba(96, 165, 250, 0.12);
+  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 16px 32px -6px rgba(0, 0, 0, 0.45);
+}

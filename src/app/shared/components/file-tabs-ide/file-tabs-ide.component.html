@@ -1,0 +1,47 @@
+<div
+  class="file-tabs"
+  [class.file-tabs--config]="variant() === 'config'"
+  [class.file-tabs--ide]="variant() === 'ide'"
+>
+  @if (variant() === 'config') {
+    <div class="file-tabs__config-header">
+      <span class="file-tabs__config-title">{{ headerLabel() }}</span>
+      <div class="file-tabs__config-buttons" role="tablist">
+        @for (tab of tabs(); track tab.id) {
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="activeTab()?.id === tab.id"
+            class="file-tabs__cfg-btn"
+            [class.file-tabs__cfg-btn--active]="activeTab()?.id === tab.id"
+            (click)="selectTab(tab.id)"
+          >
+            {{ tab.label }}
+          </button>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="file-tabs__ide-bar" role="tablist">
+      @for (tab of tabs(); track tab.id) {
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="activeTab()?.id === tab.id"
+          class="file-tabs__ide-btn"
+          [class.file-tabs__ide-btn--active]="activeTab()?.id === tab.id"
+          [class.file-tabs__ide-btn--test]="tab.isTestFile && activeTab()?.id !== tab.id"
+          (click)="selectTab(tab.id)"
+        >
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+  }
+
+  <div class="file-tabs__body">
+    @if (activeTab(); as current) {
+      <app-code-viewer [code]="current.code" [lang]="current.lang" />
+    }
+  </div>
+</div>

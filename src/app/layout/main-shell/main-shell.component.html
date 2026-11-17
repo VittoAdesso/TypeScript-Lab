@@ -1,0 +1,226 @@
+<app-toast-container />
+
+<app-confirm-modal
+  [isOpen]="isResetModalOpen()"
+  (confirmed)="confirmResetProgress()"
+  (cancelled)="closeResetModal()"
+/>
+
+<!-- Barra superior móvil -->
+<header class="mobile-topbar">
+  <div class="mobile-topbar__left">
+    <button
+      type="button"
+      aria-label="Abrir menú"
+      class="mobile-topbar__icon-btn"
+      (click)="openMobileSidebar()"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    <div>
+      <span class="mobile-topbar__brand">TS &amp; Vitest Pro</span>
+      <span class="mobile-topbar__progress">Progreso: {{ progressStore.percentage() }}%</span>
+    </div>
+  </div>
+
+  <div class="mobile-topbar__right">
+    <button
+      type="button"
+      aria-label="Cambiar tema"
+      class="mobile-topbar__icon-btn"
+      (click)="themeService.toggleTheme()"
+    >
+      @if (themeService.isDark()) {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+          />
+        </svg>
+      } @else {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+          />
+        </svg>
+      }
+    </button>
+  </div>
+</header>
+
+<!-- Backdrop móvil -->
+@if (isMobileSidebarOpen()) {
+  <div class="sidebar-backdrop" (click)="closeMobileSidebar()"></div>
+}
+
+<div class="shell-layout">
+  <!-- SIDEBAR DE NAVEGACIÓN -->
+  <aside class="sidebar" [class.sidebar--open]="isMobileSidebarOpen()">
+    <!-- Cabecera Sidebar -->
+    <div class="sidebar__header">
+      <div class="sidebar__brand-row">
+        <div class="sidebar__brand">
+          <div class="sidebar__logo">TS</div>
+          <div>
+            <h1 class="sidebar__title">Manual TS + Testing</h1>
+            <p class="sidebar__subtitle">De Cero a Nivel Pro</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          title="Cambiar tema claro/oscuro"
+          class="sidebar__theme-btn"
+          (click)="themeService.toggleTheme()"
+        >
+          @if (themeService.isDark()) {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+              />
+            </svg>
+          }
+        </button>
+      </div>
+
+      <!-- Barra de progreso global -->
+      <div class="progress-widget">
+        <div class="progress-widget__top">
+          <span class="progress-widget__label">Progreso Práctico</span>
+          <span class="progress-widget__pct">{{ progressStore.percentage() }}%</span>
+        </div>
+        <div class="progress-widget__track">
+          <div
+            class="progress-widget__fill"
+            [style.width.%]="progressStore.percentage()"
+          ></div>
+        </div>
+        <p class="progress-widget__detail">{{ progressStore.detailText() }}</p>
+      </div>
+
+      <!-- Buscador rápido -->
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Buscar (ej. satisfies, spyOn, alias)..."
+          class="search-box__input"
+          [value]="searchService.query()"
+          (input)="onSearchInput($event)"
+        />
+        <svg class="search-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+      </div>
+
+      @if (searchService.isQueryActive()) {
+        <div class="search-results">
+          @for (hit of searchService.results(); track hit.id) {
+            <button
+              type="button"
+              class="search-results__item"
+              (click)="onSelectSearchResult(hit)"
+            >
+              <span class="search-results__title">{{ hit.title }}</span>
+              <span class="search-results__badge">{{ hit.partCode }}</span>
+            </button>
+          } @empty {
+            <div class="search-results__empty">
+              Sin resultados para "{{ searchService.query().trim() }}"
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Enlaces de navegación por módulos -->
+    <nav class="sidebar__nav">
+      @for (mod of modules; track mod.slug) {
+        <a
+          [routerLink]="mod.route"
+          routerLinkActive="sidebar__nav-btn--active"
+          class="sidebar__nav-btn"
+          (click)="onNavClick(mod)"
+        >
+          <span
+            class="sidebar__nav-roman"
+            [class.sidebar__nav-roman--indigo]="mod.badgeColor === 'indigo'"
+            [class.sidebar__nav-roman--emerald]="mod.badgeColor === 'emerald'"
+            [class.sidebar__nav-roman--amber]="mod.badgeColor === 'amber'"
+            [class.sidebar__nav-roman--cyan]="mod.badgeColor === 'cyan'"
+          >
+            {{ mod.roman }}
+          </span>
+          <span class="sidebar__nav-label">{{ mod.shortTitle }}</span>
+        </a>
+      }
+    </nav>
+
+    <!-- Pie del Sidebar: Modo vista continua / Reset -->
+    <div class="sidebar__footer">
+      <button type="button" class="sidebar__all-btn" (click)="toggleFullViewMode()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 10h16M4 14h16M4 18h16"
+          />
+        </svg>
+        <span>
+          {{ isFullManualView() ? 'Volver a vista por módulos' : 'Ver todo en una página' }}
+        </span>
+      </button>
+
+      <button type="button" class="sidebar__reset-btn" (click)="openResetModal()">
+        Reiniciar progreso guardado
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-content">
+    <!-- Banner Hero -->
+    <div class="hero-banner">
+      <div class="hero-banner__inner">
+        <div class="hero-banner__pill">
+          <span>{{ hero.pillLeft }}</span>
+          <span>•</span>
+          <span>{{ hero.pillRight }}</span>
+        </div>
+        <h2 class="hero-banner__title">{{ hero.title }}</h2>
+        <p class="hero-banner__desc">{{ hero.description }}</p>
+      </div>
+      <div class="hero-banner__glow"></div>
+    </div>
+
+    <!-- Salida dinámica del módulo activo -->
+    <router-outlet />
+
+    <!-- Paginación inferior Anterior / Siguiente -->
+    <app-pagination-bar />
+  </main>
+</div>
