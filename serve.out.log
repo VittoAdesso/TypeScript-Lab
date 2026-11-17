@@ -1,0 +1,38 @@
+
+> manual-ts-testing-pro@1.0.0 start
+> ng serve
+
+> Building...
+√ Building...
+Initial chunk files | Names                          |  Raw size
+main.js             | main                           |  88.45 kB | 
+chunk-LIF2DLG6.js   | -                              |  43.66 kB | 
+styles.css          | styles                         |   4.37 kB | 
+chunk-FLLZRNAR.js   | -                              |   3.49 kB | 
+polyfills.js        | polyfills                      | 144 bytes | 
+
+                    | Initial total                  | 140.11 kB
+
+Lazy chunk files    | Names                          |  Raw size
+chunk-JFGLIK74.js   | -                              |  26.40 kB | 
+chunk-II3OW2DX.js   | -                              |  18.56 kB | 
+chunk-5XWX5YZ7.js   | -                              |  16.67 kB | 
+chunk-OFET7THE.js   | -                              |  16.28 kB | 
+chunk-MTM4DYKY.js   | -                              |  15.69 kB | 
+chunk-4LFXDRBC.js   | -                              |  14.89 kB | 
+chunk-DGHKKJCY.js   | -                              |  11.05 kB | 
+chunk-36ELZ6D6.js   | -                              |   9.69 kB | 
+chunk-54TATHF5.js   | -                              |   6.48 kB | 
+chunk-PRNJT3FE.js   | full-manual-view-component     |   4.15 kB | 
+chunk-EAGYFN3F.js   | architecture-aliases-component | 295 bytes | 
+chunk-UCWI7OW4.js   | base-project-ide-component     | 285 bytes | 
+chunk-C4B2GVPC.js   | quality-checklist-component    | 259 bytes | 
+chunk-NOK6TXOW.js   | typescript-guide-component     | 257 bytes | 
+chunk-Y6UYK4GM.js   | tdd-challenges-component       | 253 bytes | 
+...and 2 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [2.963 seconds] - 2026-11-17T22:32:18.998Z
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  ➜  Local:   http://localhost:4200/
