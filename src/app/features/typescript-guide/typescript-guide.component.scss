@@ -4,7 +4,7 @@
 .ts-guide {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 2.25rem;
 
   &__header {
     @include m.section-header;
@@ -14,65 +14,72 @@
   &__section {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.375rem;
 
     &--pro {
-      padding-top: 1rem;
+      padding-top: 1.25rem;
     }
   }
 
   &__group-title {
     margin: 0;
-    font-size: 1.125rem;
-    font-weight: 700;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     color: var(--text-heading);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.625rem;
   }
 
   &__pill {
-    padding: 0.125rem 0.625rem;
-    border-radius: v.$radius-sm;
-    font-size: 0.75rem;
-    font-weight: 700;
+    padding: 0.2rem 0.7rem;
+    border-radius: v.$radius-md;
+    font-family: v.$font-mono;
+    font-size: 0.74rem;
+    font-weight: 800;
+    border: 1px solid transparent;
 
     &--indigo {
       background-color: var(--brand-accent-bg);
       color: var(--brand-accent-text);
+      border-color: var(--brand-accent-border);
     }
 
     &--amber {
       background-color: var(--amber-bg);
       color: var(--amber-text);
+      border-color: var(--amber-border);
     }
   }
 
   &__card {
-    @include m.surface-card(1.25rem);
+    @include m.surface-card(1.5rem);
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.875rem;
   }
 
   &__card-title {
     margin: 0;
-    font-size: 0.875rem;
-    font-weight: 700;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     color: var(--text-heading);
   }
 
   &__card-desc {
     margin: 0;
-    font-size: 0.75rem;
-    color: var(--text-muted);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
   }
 
   &__special-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.625rem;
-    font-size: 0.75rem;
+    gap: 0.75rem;
+    font-size: 0.76rem;
     margin-bottom: 0.25rem;
 
     @include m.respond-sm {
@@ -81,19 +88,25 @@
   }
 
   &__special-box {
-    padding: 0.625rem;
-    border-radius: v.$radius-lg;
+    padding: 0.75rem 0.875rem;
+    border-radius: v.$radius-xl;
     border: 1px solid transparent;
+    transition: transform v.$transition-fast;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
 
     strong {
       display: block;
       font-family: v.$font-mono;
-      margin-bottom: 0.15rem;
+      font-size: 0.82rem;
+      margin-bottom: 0.2rem;
     }
 
     &--rose {
       background-color: var(--rose-bg);
-      border-color: rgba(244, 63, 94, 0.22);
+      border-color: var(--rose-border);
       strong {
         color: var(--rose-text);
       }
@@ -101,7 +114,7 @@
 
     &--emerald {
       background-color: var(--emerald-bg);
-      border-color: rgba(16, 185, 129, 0.22);
+      border-color: var(--emerald-border);
       strong {
         color: var(--emerald-text);
       }
@@ -109,7 +122,7 @@
 
     &--sky {
       background-color: var(--sky-bg);
-      border-color: rgba(56, 189, 248, 0.22);
+      border-color: var(--sky-border);
       strong {
         color: var(--sky-text);
       }
@@ -117,7 +130,7 @@
 
     &--purple {
       background-color: var(--purple-bg);
-      border-color: rgba(192, 132, 252, 0.22);
+      border-color: var(--purple-border);
       strong {
         color: var(--purple-text);
       }
@@ -127,7 +140,7 @@
   &__pro-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.25rem;
+    gap: 1.375rem;
 
     @include m.respond-lg {
       grid-template-columns: repeat(2, 1fr);

@@ -1,7 +1,7 @@
 @use 'variables' as v;
 
 // ============================================================================
-// MIXINS RESPONSIVE, TARJETAS Y UTILIDADES DE INTERFAZ
+// MIXINS RESPONSIVE, TARJETAS GLASSMORPHISM Y UTILIDADES DE INTERFAZ PRO
 // ============================================================================
 
 @mixin respond-sm {
@@ -22,57 +22,100 @@
   }
 }
 
-@mixin surface-card($padding: 1.25rem) {
+@mixin surface-card($padding: 1.375rem) {
   background-color: var(--bg-surface);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
-  border-radius: v.$radius-xl;
+  border-radius: v.$radius-2xl;
   padding: $padding;
   box-shadow: var(--shadow-card);
+  transition:
+    border-color v.$transition-base,
+    box-shadow v.$transition-base,
+    transform v.$transition-base;
+
+  &:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-card-hover);
+  }
 }
 
 @mixin section-header {
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 1rem;
+  padding-bottom: 1.25rem;
   margin-bottom: 1.75rem;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 6rem;
+    height: 2px;
+    border-radius: v.$radius-full;
+    background: linear-gradient(90deg, v.$indigo-500, v.$cyan-400);
+  }
 
   .part-badge {
-    display: inline-block;
-    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: v.$radius-full;
+    font-family: v.$font-mono;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
+    background-color: var(--brand-accent-bg);
     color: var(--brand-accent-text);
+    border: 1px solid var(--brand-accent-border);
+    margin-bottom: 0.5rem;
 
     &--emerald {
+      background-color: var(--emerald-bg);
       color: var(--emerald-text);
+      border-color: var(--emerald-border);
     }
     &--amber {
+      background-color: var(--amber-bg);
       color: var(--amber-text);
+      border-color: var(--amber-border);
     }
     &--cyan {
+      background-color: var(--cyan-bg);
       color: var(--cyan-text);
+      border-color: var(--cyan-border);
     }
   }
 
   h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.625rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
     color: var(--text-heading);
     margin: 0.25rem 0 0;
+    line-height: 1.25;
+
+    @include respond-sm {
+      font-size: 1.875rem;
+    }
   }
 
   p {
-    font-size: 0.875rem;
+    font-size: 0.925rem;
     color: var(--text-secondary);
-    margin: 0.35rem 0 0;
+    margin: 0.45rem 0 0;
+    line-height: 1.6;
   }
 }
 
 @mixin pill-badge($bg-var, $text-var) {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.625rem;
-  border-radius: v.$radius-sm;
+  padding: 0.22rem 0.65rem;
+  border-radius: v.$radius-md;
   background-color: var($bg-var);
   color: var($text-var);
   font-size: 0.75rem;

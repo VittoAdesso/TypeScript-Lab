@@ -2,65 +2,76 @@
 @use 'mixins' as m;
 
 .file-tabs {
-  border-radius: v.$radius-xl;
+  border-radius: v.$radius-2xl;
   overflow: hidden;
 
   &--config {
     background-color: var(--bg-surface);
+    backdrop-filter: blur(16px);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-card);
   }
 
   &--ide {
-    background-color: v.$slate-900;
-    border: 1px solid v.$slate-800;
-    box-shadow: var(--shadow-lg);
+    background: linear-gradient(180deg, #0b1120 0%, #060913 100%);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow:
+      0 24px 48px -12px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   &__config-header {
-    padding: 0.875rem 1.25rem;
+    padding: 1rem 1.375rem;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--bg-surface-subtle);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.625rem;
+    gap: 0.75rem;
   }
 
   &__config-title {
+    font-family: v.$font-mono;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    color: var(--brand-accent-text);
   }
 
   &__config-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.375rem;
+    gap: 0.45rem;
   }
 
   &__cfg-btn {
-    padding: 0.375rem 0.75rem;
-    border-radius: v.$radius-md;
+    padding: 0.42rem 0.85rem;
+    border-radius: v.$radius-lg;
     font-family: v.$font-mono;
     font-size: 0.75rem;
-    font-weight: 600;
-    border: none;
+    font-weight: 700;
+    border: 1px solid var(--border-color);
     cursor: pointer;
     background-color: var(--bg-surface-muted);
     color: var(--text-secondary);
-    transition: background-color v.$transition-fast, color v.$transition-fast;
+    transition:
+      background v.$transition-fast,
+      color v.$transition-fast,
+      border-color v.$transition-fast,
+      box-shadow v.$transition-fast;
 
     &:hover {
       color: var(--text-heading);
+      border-color: var(--border-hover);
     }
 
     &--active {
-      background-color: v.$indigo-600;
+      background: linear-gradient(135deg, v.$indigo-500, v.$indigo-600);
       color: #ffffff;
+      border-color: rgba(165, 180, 252, 0.4);
+      box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.45);
 
       &:hover {
         color: #ffffff;
@@ -69,9 +80,9 @@
   }
 
   &__ide-bar {
-    background-color: v.$slate-950;
-    border-bottom: 1px solid v.$slate-800;
-    padding: 0.75rem 0.75rem 0;
+    background-color: rgba(5, 8, 17, 0.9);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+    padding: 0.75rem 0.875rem 0;
     display: flex;
     align-items: center;
     gap: 0.375rem;
@@ -79,12 +90,12 @@
   }
 
   &__ide-btn {
-    padding: 0.5rem 0.875rem;
+    padding: 0.575rem 1rem;
     border-top-left-radius: v.$radius-lg;
     border-top-right-radius: v.$radius-lg;
     font-family: v.$font-mono;
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
     background: transparent;
     color: v.$slate-400;
     border: 1px solid transparent;
@@ -94,11 +105,12 @@
     transition: color v.$transition-fast, background-color v.$transition-fast;
 
     &:hover {
-      color: v.$slate-200;
+      color: v.$slate-100;
+      background-color: rgba(30, 41, 59, 0.45);
     }
 
     &--test {
-      color: rgba(52, 211, 153, 0.85);
+      color: rgba(52, 211, 153, 0.9);
 
       &:hover {
         color: v.$emerald-300;
@@ -106,10 +118,11 @@
     }
 
     &--active {
-      background-color: v.$slate-900;
+      background-color: #0b1120;
       color: v.$cyan-400;
-      font-weight: 600;
-      border-color: v.$slate-800;
+      font-weight: 700;
+      border-color: rgba(148, 163, 184, 0.2);
+      box-shadow: inset 0 2px 0 v.$cyan-400;
 
       &:hover {
         color: v.$cyan-400;
@@ -118,6 +131,6 @@
   }
 
   &__body {
-    padding: 1rem 1.25rem;
+    padding: 1.25rem;
   }
 }

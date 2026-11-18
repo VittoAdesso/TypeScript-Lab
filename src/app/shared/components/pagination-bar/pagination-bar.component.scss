@@ -2,8 +2,8 @@
 @use 'mixins' as m;
 
 .pagination-bar {
-  margin-top: 2.5rem;
-  padding-top: 1.5rem;
+  margin-top: 3rem;
+  padding-top: 1.75rem;
   border-top: 1px solid var(--border-color);
   display: flex;
   align-items: center;
@@ -12,49 +12,67 @@
 
   &__indicator {
     font-family: v.$font-mono;
-    font-size: 0.75rem;
-    color: var(--text-muted);
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 0.35rem 0.85rem;
+    border-radius: v.$radius-full;
+    background-color: var(--bg-surface-muted);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
   }
 
   &__btn {
-    padding: 0.625rem 1rem;
-    border-radius: v.$radius-lg;
-    font-size: 0.75rem;
-    font-weight: 600;
+    padding: 0.7rem 1.25rem;
+    border-radius: v.$radius-xl;
+    font-size: 0.78rem;
+    font-weight: 700;
     font-family: v.$font-sans;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
-    transition: background-color v.$transition-fast, opacity v.$transition-fast;
+    transition:
+      background v.$transition-fast,
+      border-color v.$transition-fast,
+      box-shadow v.$transition-fast,
+      transform v.$transition-fast,
+      opacity v.$transition-fast;
 
     @include m.respond-sm {
       font-size: 0.875rem;
     }
 
     &:disabled {
-      opacity: 0.4;
+      opacity: 0.38;
       pointer-events: none;
     }
 
     &--prev {
       background-color: var(--bg-surface);
+      backdrop-filter: blur(12px);
       color: var(--text-primary);
       border: 1px solid var(--border-color);
 
       &:hover {
+        border-color: var(--border-hover);
         background-color: var(--bg-surface-muted);
+        transform: translateX(-2px);
       }
     }
 
     &--next {
-      background-color: v.$indigo-600;
+      background: linear-gradient(135deg, v.$indigo-500 0%, v.$indigo-600 55%, v.$purple-600 100%);
       color: #ffffff;
-      border: 1px solid transparent;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+      border: 1px solid rgba(165, 180, 252, 0.35);
+      box-shadow:
+        0 8px 20px -4px rgba(79, 70, 229, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
 
       &:hover {
-        background-color: v.$indigo-500;
+        box-shadow:
+          0 12px 26px -4px rgba(99, 102, 241, 0.6),
+          inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        transform: translateX(2px);
       }
     }
   }

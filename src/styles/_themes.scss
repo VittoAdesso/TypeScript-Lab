@@ -1,79 +1,112 @@
 @use 'variables' as v;
 
 // ============================================================================
-// VARIABLES CSS DINÁMICAS PARA MODO CLARO Y MODO OSCURO (DEFAULT: DARK)
+// VARIABLES CSS DINÁMICAS PARA MODO CLARO Y MODO OSCURO (DEFAULT: DARK PRO)
 // ============================================================================
 
 :root {
-  --bg-app: #{v.$slate-50};
-  --bg-surface: #ffffff;
-  --bg-surface-muted: #{v.$slate-100};
-  --bg-surface-subtle: #{v.$slate-50};
-  --bg-header-glass: rgba(255, 255, 255, 0.9);
-  --bg-code: #{v.$slate-950};
+  --bg-app: #f4f6fb;
+  --bg-mesh:
+    radial-gradient(ellipse 80% 50% at 50% -15%, rgba(99, 102, 241, 0.14), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 10%, rgba(6, 182, 212, 0.1), transparent 65%);
+  --bg-surface: rgba(255, 255, 255, 0.88);
+  --bg-surface-solid: #ffffff;
+  --bg-surface-muted: #eef2f9;
+  --bg-surface-subtle: rgba(241, 245, 249, 0.75);
+  --bg-header-glass: rgba(255, 255, 255, 0.85);
+  --bg-sidebar: rgba(255, 255, 255, 0.92);
+  --bg-code: #090d16;
+  --surface-highlight: rgba(255, 255, 255, 0.9);
   --text-primary: #{v.$slate-800};
-  --text-heading: #{v.$slate-900};
+  --text-heading: #090d16;
   --text-secondary: #{v.$slate-600};
   --text-muted: #{v.$slate-500};
-  --border-color: #{v.$slate-200};
+  --border-color: rgba(203, 213, 225, 0.75);
+  --border-hover: rgba(99, 102, 241, 0.45);
   --border-subtle: rgba(226, 232, 240, 0.8);
   --brand-primary: #{v.$indigo-600};
   --brand-primary-hover: #{v.$indigo-500};
   --brand-accent-text: #{v.$indigo-600};
   --brand-accent-bg: rgba(99, 102, 241, 0.1);
-  --nav-active-bg: #{v.$indigo-50};
+  --brand-accent-border: rgba(99, 102, 241, 0.25);
+  --nav-active-bg: linear-gradient(90deg, rgba(99, 102, 241, 0.14) 0%, rgba(6, 182, 212, 0.06) 100%);
   --nav-active-text: #{v.$indigo-700};
   --emerald-text: #{v.$emerald-600};
   --emerald-bg: rgba(16, 185, 129, 0.1);
+  --emerald-border: rgba(16, 185, 129, 0.28);
   --amber-text: #{v.$amber-600};
   --amber-bg: rgba(245, 158, 11, 0.1);
+  --amber-border: rgba(245, 158, 11, 0.28);
   --cyan-text: #{v.$cyan-600};
   --cyan-bg: rgba(6, 182, 212, 0.1);
+  --cyan-border: rgba(6, 182, 212, 0.28);
   --rose-text: #{v.$rose-600};
   --rose-bg: rgba(244, 63, 94, 0.1);
+  --rose-border: rgba(244, 63, 94, 0.28);
   --sky-text: #{v.$sky-600};
   --sky-bg: rgba(14, 165, 233, 0.1);
+  --sky-border: rgba(14, 165, 233, 0.28);
   --purple-text: #{v.$purple-600};
   --purple-bg: rgba(168, 85, 247, 0.1);
+  --purple-border: rgba(168, 85, 247, 0.28);
   --blue-text: #{v.$blue-600};
   --blue-bg: rgba(59, 130, 246, 0.1);
-  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05);
-  --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.12);
+  --blue-border: rgba(59, 130, 246, 0.28);
+  --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-card-hover: 0 12px 28px -4px rgba(79, 70, 229, 0.12), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 20px 38px -10px rgba(15, 23, 42, 0.14);
 }
 
 html.dark {
-  --bg-app: #{v.$slate-950};
-  --bg-surface: #{v.$slate-900};
-  --bg-surface-muted: #{v.$slate-800};
-  --bg-surface-subtle: rgba(2, 6, 23, 0.6);
-  --bg-header-glass: rgba(15, 23, 42, 0.9);
-  --bg-code: #{v.$slate-950};
+  --bg-app: #060913;
+  --bg-mesh:
+    radial-gradient(ellipse 80% 55% at 50% -15%, rgba(99, 102, 241, 0.22), transparent 70%),
+    radial-gradient(ellipse 55% 45% at 88% 12%, rgba(6, 182, 212, 0.14), transparent 65%),
+    radial-gradient(ellipse 50% 40% at 12% 85%, rgba(168, 85, 247, 0.1), transparent 70%);
+  --bg-surface: rgba(15, 23, 42, 0.72);
+  --bg-surface-solid: #0d1424;
+  --bg-surface-muted: rgba(30, 41, 59, 0.75);
+  --bg-surface-subtle: rgba(10, 15, 29, 0.65);
+  --bg-header-glass: rgba(9, 13, 24, 0.85);
+  --bg-sidebar: rgba(10, 15, 28, 0.88);
+  --bg-code: #060911;
+  --surface-highlight: rgba(255, 255, 255, 0.06);
   --text-primary: #{v.$slate-100};
   --text-heading: #ffffff;
   --text-secondary: #{v.$slate-300};
   --text-muted: #{v.$slate-400};
-  --border-color: #{v.$slate-800};
-  --border-subtle: rgba(30, 41, 59, 0.85);
+  --border-color: rgba(148, 163, 184, 0.14);
+  --border-hover: rgba(129, 140, 248, 0.5);
+  --border-subtle: rgba(51, 65, 85, 0.55);
   --brand-primary: #{v.$indigo-600};
   --brand-primary-hover: #{v.$indigo-500};
-  --brand-accent-text: #{v.$indigo-400};
-  --brand-accent-bg: rgba(99, 102, 241, 0.14);
-  --nav-active-bg: rgba(99, 102, 241, 0.15);
-  --nav-active-text: #{v.$indigo-300};
-  --emerald-text: #{v.$emerald-400};
-  --emerald-bg: rgba(16, 185, 129, 0.12);
+  --brand-accent-text: #a5b4fc;
+  --brand-accent-bg: rgba(99, 102, 241, 0.16);
+  --brand-accent-border: rgba(129, 140, 248, 0.32);
+  --nav-active-bg: linear-gradient(90deg, rgba(99, 102, 241, 0.22) 0%, rgba(6, 182, 212, 0.08) 100%);
+  --nav-active-text: #e0e7ff;
+  --emerald-text: #{v.$emerald-300};
+  --emerald-bg: rgba(16, 185, 129, 0.14);
+  --emerald-border: rgba(52, 211, 153, 0.3);
   --amber-text: #{v.$amber-400};
-  --amber-bg: rgba(245, 158, 11, 0.12);
+  --amber-bg: rgba(245, 158, 11, 0.14);
+  --amber-border: rgba(251, 191, 36, 0.3);
   --cyan-text: #{v.$cyan-400};
-  --cyan-bg: rgba(6, 182, 212, 0.12);
+  --cyan-bg: rgba(6, 182, 212, 0.14);
+  --cyan-border: rgba(34, 211, 238, 0.3);
   --rose-text: #{v.$rose-400};
-  --rose-bg: rgba(244, 63, 94, 0.12);
+  --rose-bg: rgba(244, 63, 94, 0.14);
+  --rose-border: rgba(251, 113, 133, 0.3);
   --sky-text: #{v.$sky-400};
-  --sky-bg: rgba(56, 189, 248, 0.12);
+  --sky-bg: rgba(56, 189, 248, 0.14);
+  --sky-border: rgba(56, 189, 248, 0.3);
   --purple-text: #{v.$purple-400};
-  --purple-bg: rgba(192, 132, 252, 0.12);
+  --purple-bg: rgba(192, 132, 252, 0.14);
+  --purple-border: rgba(192, 132, 252, 0.3);
   --blue-text: #{v.$blue-400};
-  --blue-bg: rgba(96, 165, 250, 0.12);
-  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 16px 32px -6px rgba(0, 0, 0, 0.45);
+  --blue-bg: rgba(96, 165, 250, 0.14);
+  --blue-border: rgba(96, 165, 250, 0.3);
+  --shadow-card: 0 8px 28px -6px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-card-hover: 0 14px 34px -6px rgba(0, 0, 0, 0.6), 0 0 24px -4px rgba(99, 102, 241, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  --shadow-lg: 0 22px 44px -8px rgba(0, 0, 0, 0.65);
 }

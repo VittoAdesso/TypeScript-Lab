@@ -4,7 +4,7 @@
 .quality-checklist {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.75rem;
 
   &__header {
     @include m.section-header;
@@ -15,30 +15,35 @@
     @include m.surface-card(1.5rem);
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.875rem;
   }
 
   &__item {
     display: flex;
     align-items: flex-start;
-    gap: 0.875rem;
-    padding: 0.875rem;
-    border-radius: v.$radius-lg;
+    gap: 0.95rem;
+    padding: 1rem 1.125rem;
+    border-radius: v.$radius-xl;
     background-color: var(--bg-surface-subtle);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--border-color);
     cursor: pointer;
-    transition: border-color v.$transition-fast;
+    transition:
+      border-color v.$transition-fast,
+      background-color v.$transition-fast,
+      transform v.$transition-fast;
 
     &:hover {
-      border-color: rgba(99, 102, 241, 0.45);
+      border-color: var(--border-hover);
+      background-color: var(--bg-surface-muted);
+      transform: translateX(3px);
     }
   }
 
   &__checkbox {
-    margin-top: 0.15rem;
-    width: 1rem;
-    height: 1rem;
-    accent-color: v.$indigo-600;
+    margin-top: 0.2rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: v.$indigo-500;
     border-radius: v.$radius-sm;
     flex-shrink: 0;
     cursor: pointer;
@@ -47,19 +52,20 @@
   &__content {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.2rem;
   }
 
   &__title {
     display: block;
-    font-size: 0.875rem;
-    font-weight: 700;
+    font-size: 0.925rem;
+    font-weight: 800;
     color: var(--text-heading);
   }
 
   &__desc {
     display: block;
-    font-size: 0.75rem;
-    color: var(--text-muted);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
   }
 }
